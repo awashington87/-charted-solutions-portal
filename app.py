@@ -446,13 +446,12 @@ def main():
                 
                 if len(filtered_data) > 0:
                     # Show preview - only include columns that actually exist
-available_cols = ['student_id', 'first_name', 'last_name', 'email', 'risk_tier', 'major']
-preview_cols = [col for col in available_cols if col in filtered_data.columns]
-if preview_cols:
-    st.dataframe(filtered_data[preview_cols].head(10))
-else:
-    st.dataframe(filtered_data.head(10))
-            
+                    available_cols = ['student_id', 'first_name', 'last_name', 'email', 'risk_tier', 'major']
+                    preview_cols = [col for col in available_cols if col in filtered_data.columns]
+                    if preview_cols:
+                        st.dataframe(filtered_data[preview_cols].head(10))
+                    else:
+                        st.dataframe(filtered_data.head(10))
             with col2:
                 st.subheader("Email Template")
                 
