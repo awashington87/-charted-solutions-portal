@@ -445,11 +445,13 @@ def main():
                 st.write(f"**Selected: {len(filtered_data)} students**")
                 
                 if len(filtered_data) > 0:
-                    # Show preview
-                    preview_cols = ['student_id', 'first_name', 'last_name', 'email', 'risk_tier']
-                    if 'major' in filtered_data.columns:
-                        preview_cols.append('major')
-                    st.dataframe(filtered_data[preview_cols].head(10))
+                    # Show preview - only include columns that actually exist
+available_cols = ['student_id', 'first_name', 'last_name', 'email', 'risk_tier', 'major']
+preview_cols = [col for col in available_cols if col in filtered_data.columns]
+if preview_cols:
+    st.dataframe(filtered_data[preview_cols].head(10))
+else:
+    st.dataframe(filtered_data.head(10))
             
             with col2:
                 st.subheader("Email Template")
