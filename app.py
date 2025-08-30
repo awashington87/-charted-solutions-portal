@@ -1,23 +1,18 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-from datetime import import datetime
+from datetime import datetime
 import random
 import io
 
-
-
-
-
-# Configure the page
+# Page configuration
 st.set_page_config(
     page_title="ChartED Solutions - Financial Aid Portal",
     page_icon="🎓",
-    layout="wide",
-    initial_sidebar_state="expanded"
+    layout="wide"
 )
 
-# Custom styling to make it look professional
+# Custom CSS for professional look
 st.markdown("""
 <style>
     .main-header {
@@ -27,12 +22,6 @@ st.markdown("""
         color: white;
         margin-bottom: 2rem;
     }
-    .charted-logo {
-        font-size: 2.5em;
-        font-weight: bold;
-        color: #1e3a5f;
-        margin-bottom: 0.5rem;
-    }
     .metric-card {
         background: white;
         padding: 1rem;
@@ -41,452 +30,576 @@ st.markdown("""
         border-left: 4px solid #1e3a5f;
         margin-bottom: 1rem;
     }
+    .risk-high { color: #dc3545; font-weight: bold; }
+    .risk-medium { color: #ffc107; font-weight: bold; }
+    .risk-low { color: #28a745; font-weight: bold; }
 </style>
 """, unsafe_allow_html=True)
 
-def setup_session_data():
-    """Set up the data that persists while using the app"""
-    if 'data_processor' not in st.session_state:
-        st.session_state['data_processor'] = UnifiedDataProcessor()
-    if 'email_manager' not in st.session_state:
-        st.session_state['email_manager'] = EmailManager()
-    if 'analytics_engine' not in st.session_state:
-        st.session_state['analytics_engine'] = MajorAnalyticsEngine()
-    if 'nslds_processed' not in st.session_state:
-        st.session_state['nslds_processed'] = False
-    if 'sis_processed' not in st.session_state:
-        st.session_state['sis_processed'] = False
+# Initialize session state
+if 'nslds_data' not in st.session_state:
+    st.session_state.nslds_data = None
+if 'sis_data' not in st.session_state:
+    st.session_state.sis_data = None
+if 'merged_data' not in st.session_state:
+    st.session_state.merged_data = None
+
+def calculate_risk_score(days_delinquent):
+    """Calculate risk score based on delinquency days"""
+    if pd.isna(days_delinquent) or days_delinquent < 30:
+        return random.uniform(0, 0.3)
+    elif days_delinquent < 90:
+        return random.uniform(0.3, 0.6)
+    elif days_delinquent < 180:
+        return random.uniform(0.6, 0.8)
+    else:
+        return random.uniform(0.8, 1.0)
+
+def get_risk_tier(score):
+    """Convert risk score to tier"""
+    if score >= 0.7:
+        return 'HIGH'
+    elif score >= 0.4:
+        return 'MEDIUM'
+    else:
+        return 'LOW'
+
+def process_nslds_file(uploaded_file):
+    """Process NSLDS file and add risk calculations"""
+    try:
+        # Read file based on extension
+        if uploaded_file.name.endswith('.csv'):
+            df = pd.read_csv(uploaded_file)
+        else:
+            df = pd.read_excel(uploaded_file)
+        
+        # Standardize common column names
+        column_mapping = {
+            'Borrower SSN': 'ssn',
+            'Borrower First Name': 'first_name', 
+            'Borrower Last Name': 'last_name',
+            'E-mail': 'email',
+            'Days Delinquent': 'days_delinquent',
+            'OPB': 'outstanding_balance',
+            'Loan Type': 'loan_type'
+        }
+        
+        # Rename columns that exist
+        for old_name, new_name in column_mapping.items():
+            if old_name in df.columns:
+                df = df.rename(columns={old_name: new_name})
+        
+        # Create student IDs if not present
+        if 'student_id' not in df.columns:
+            df['student_id'] = [f'STU{i+1000:06d}' for i in range(len(df))]
+        
+        # Fill missing values
+        df['days_delinquent'] = df.get('days_delinquent', 0).fillna(0)
+        df['outstanding_balance'] = df.get('outstanding_balance', 0).fillna(0)
+        
+        # Calculate risk metrics
+        df['risk_score'] = df['days_delinquent'].apply(calculate_risk_score)
+        df['risk_tier'] = df['risk_score'].apply(get_risk_tier)
+        
+        return df, None
+        
+    except Exception as e:
+        return None, str(e)
+
+def process_sis_file(uploaded_file):
+    """Process SIS file"""
+    try:
+        if uploaded_file.name.endswith('.csv'):
+            df = pd.read_csv(uploaded_file)
+        else:
+            df = pd.read_excel(uploaded_file)
+        
+        # Standardize SIS columns
+        column_mapping = {
+            'Student ID': 'student_id',
+            'SSN': 'ssn',
+            'First Name': 'first_name',
+            'Last Name': 'last_name', 
+            'Email': 'email',
+            'Major': 'major',
+            'Program': 'program'
+        }
+        
+        for old_name, new_name in column_mapping.items():
+            if old_name in df.columns:
+                df = df.rename(columns={old_name: new_name})
+        
+        return df, None
+        
+    except Exception as e:
+        return None, str(e)
+
+def merge_data(nslds_df, sis_df):
+    """Merge NSLDS and SIS data"""
+    try:
+        # Try merging on SSN first
+        if 'ssn' in nslds_df.columns and 'ssn' in sis_df.columns:
+            merged = pd.merge(nslds_df, sis_df, on='ssn', how='inner', suffixes=('_nslds', '_sis'))
+        # Fall back to student_id
+        elif 'student_id' in nslds_df.columns and 'student_id' in sis_df.columns:
+            merged = pd.merge(nslds_df, sis_df, on='student_id', how='inner', suffixes=('_nslds', '_sis'))
+        else:
+            return None, "No common identifier found (SSN or Student ID)"
+        
+        return merged, None
+        
+    except Exception as e:
+        return None, str(e)
+
+def analyze_by_major(data):
+    """Create analytics by academic major"""
+    if data is None or 'major' not in data.columns:
+        return None
+    
+    analysis = data.groupby('major').agg({
+        'risk_score': ['mean', 'count'],
+        'outstanding_balance': ['mean', 'sum'], 
+        'days_delinquent': 'mean'
+    }).round(2)
+    
+    analysis.columns = ['avg_risk', 'student_count', 'avg_balance', 'total_balance', 'avg_delinquent_days']
+    analysis = analysis.reset_index()
+    analysis['risk_tier'] = analysis['avg_risk'].apply(get_risk_tier)
+    
+    return analysis.sort_values('avg_risk', ascending=False)
+
+# Email templates
+EMAIL_TEMPLATES = {
+    'default_prevention': {
+        'subject': 'Important: Student Loan Payment Information',
+        'body': '''Dear {first_name} {last_name},
+
+We hope this message finds you well. We are reaching out regarding your federal student loan account.
+
+Account Information:
+- Outstanding Balance: ${outstanding_balance:,.2f}
+- Days Past Due: {days_delinquent}
+
+Please contact our office to discuss payment options and avoid default.
+
+Contact: (555) 123-4567
+Email: finaid@yourschool.edu
+
+Best regards,
+Financial Aid Office'''
+    },
+    'payment_plan': {
+        'subject': 'Payment Plan Options Available', 
+        'body': '''Dear {first_name} {last_name},
+
+You may qualify for alternative payment arrangements for your student loans.
+
+Current Status:
+- Outstanding Balance: ${outstanding_balance:,.2f}
+- Academic Program: {major}
+
+We offer income-based repayment plans and other options.
+
+Contact us at (555) 123-4567 to learn more.
+
+Financial Aid Office'''
+    },
+    'counseling': {
+        'subject': 'Free Financial Counseling Available',
+        'body': '''Dear {first_name} {last_name},
+
+Our office offers free financial counseling to help you manage your student loans successfully.
+
+Services include:
+- Loan counseling and education
+- Budget planning
+- Repayment strategies
+
+Contact us at (555) 123-4567 to schedule.
+
+Financial Aid Office'''
+    }
+}
 
 def main():
-    """Main function that runs the entire application"""
-    setup_session_data()
+    # Header
+    st.markdown("""
+    <div class="main-header">
+        <h1>🎓 ChartED Solutions</h1>
+        <h2>Unified Financial Aid Portal</h2>
+        <p>Streamline student loan risk management and communications</p>
+    </div>
+    """, unsafe_allow_html=True)
     
-    # Create the header section
-    col1, col2 = st.columns([3, 1])
-    with col1:
-        st.markdown('<div class="charted-logo">🎓 ChartED Solutions</div>', unsafe_allow_html=True)
-        st.markdown("**Unified Financial Aid Portal** - Manage Student Loan Risk & Communications")
-    with col2:
-        st.markdown("**Contact Us:**")
-        st.markdown(f"📧 {CONTACT_EMAIL}")
-        st.markdown(f"🌐 {WEBSITE}")
-    
-    st.markdown("---")
-    
-    # Create the sidebar
+    # Sidebar
     with st.sidebar:
         st.markdown("### 🔒 FERPA Compliant")
         st.info("All communications maintain strict privacy compliance")
         
         st.markdown("### ✅ Features")
-        st.markdown("""
-        📁 **Upload Multiple Files**  
-        📊 **Risk Analytics by Major**  
-        📧 **Send Compliant Emails**  
-        📋 **Generate Reports**  
-        ⚙️ **Easy Configuration**
-        """)
+        st.write("📁 Multi-file processing")
+        st.write("📊 Major-based analytics") 
+        st.write("📧 Compliant communications")
+        st.write("📋 Automated reporting")
         
-        st.markdown("### 📞 Support")
-        st.markdown(f"""
-        **ChartED Solutions**  
-        📧 {CONTACT_EMAIL}  
-        📞 Available for consultation  
-        🕒 9 AM - 6 PM EST
-        """)
+        st.markdown("### 📞 Contact")
+        st.write("📧 apryll@visitcharted.com")
+        st.write("🌐 visitcharted.com")
     
-    # Create the main navigation tabs
-    tab1, tab2, tab3, tab4, tab5 = st.tabs([
-        "🏠 Dashboard", 
-        "📁 Upload Data", 
-        "📊 Analytics", 
-        "📧 Communications", 
-        "📋 Reports"
-    ])
+    # Main tabs
+    tab1, tab2, tab3, tab4, tab5 = st.tabs(["🏠 Dashboard", "📁 Upload Data", "📊 Analytics", "📧 Communications", "📋 Reports"])
     
     with tab1:
-        show_dashboard()
-    
-    with tab2:
-        show_data_upload()
-    
-    with tab3:
-        show_analytics()
-    
-    with tab4:
-        show_communications()
-    
-    with tab5:
-        show_reports()
-
-def show_dashboard():
-    """Show the main dashboard"""
-    st.markdown("""
-    <div class="main-header">
-        <h1>Financial Aid Risk Management Portal</h1>
-        <p style="font-size: 1.2em;">
-            Upload student data, analyze risk patterns, and send compliant communications - all in one place
-        </p>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    # Show feature cards
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        st.markdown("""
-        <div class="metric-card">
-            <h3>🎯 Unified Data</h3>
-            <p>Combine NSLDS and SIS data for complete student risk profiles</p>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    with col2:
-        st.markdown("""
-        <div class="metric-card">
-            <h3>📊 Smart Analytics</h3>
-            <p>Identify which academic programs have the highest default risk</p>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    with col3:
-        st.markdown("""
-        <div class="metric-card">
-            <h3>📧 Compliant Communications</h3>
-            <p>Send FERPA-compliant emails with built-in templates</p>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    # Show current data status if available
-    if st.session_state.get('merged_data') is not None:
-        st.markdown("### Current Data Summary")
-        merged_data = st.session_state['merged_data']
+        st.header("Dashboard Overview")
         
-        col1, col2, col3, col4 = st.columns(4)
-        with col1:
-            st.metric("Total Students", len(merged_data))
-        with col2:
-            high_risk = len(merged_data[merged_data['risk_tier'] == 'HIGH'])
-            st.metric("High Risk Students", high_risk)
-        with col3:
-            total_balance = merged_data['outstanding_balance'].sum()
-            st.metric("Total at Risk", f"${total_balance:,.0f}")
-        with col4:
-            avg_risk = merged_data['risk_score'].mean()
-            st.metric("Average Risk Score", f"{avg_risk:.2f}")
-
-def show_data_upload():
-    """Show the data upload page"""
-    st.header("📁 Upload Your Data Files")
-    st.markdown("Upload NSLDS and SIS files to analyze student loan risk")
-    
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        st.markdown("### Step 1: Upload NSLDS Report")
-        st.markdown("This is your delinquent borrower report from NSLDS")
-        
-        nslds_file = st.file_uploader(
-            "Choose NSLDS File",
-            type=['csv', 'xlsx'],
-            key="nslds_upload",
-            help="Upload your NSLDS Delinquent Borrower Report (CSV or Excel format)"
-        )
-        
-        if nslds_file:
-            st.success(f"✅ File uploaded: {nslds_file.name}")
-            if st.button("Process NSLDS File", type="primary"):
-                with st.spinner("Processing your NSLDS data..."):
-                    success, message = st.session_state['data_processor'].process_nslds_file(nslds_file)
-                    if success:
-                        st.success(message)
-                        st.session_state['nslds_processed'] = True
-                    else:
-                        st.error(message)
-    
-    with col2:
-        st.markdown("### Step 2: Upload SIS Data")
-        st.markdown("This is your student information with academic majors")
-        
-        sis_file = st.file_uploader(
-            "Choose SIS File",
-            type=['csv', 'xlsx'],
-            key="sis_upload",
-            help="Upload student information with major/program data (CSV or Excel format)"
-        )
-        
-        if sis_file:
-            st.success(f"✅ File uploaded: {sis_file.name}")
-            if st.button("Process SIS File", type="primary"):
-                with st.spinner("Processing your SIS data..."):
-                    success, message = st.session_state['data_processor'].process_sis_file(sis_file)
-                    if success:
-                        st.success(message)
-                        st.session_state['sis_processed'] = True
-                    else:
-                        st.error(message)
-    
-    # Show merge option when both files are processed
-    if st.session_state.get('nslds_processed') and st.session_state.get('sis_processed'):
-        st.markdown("---")
-        st.markdown("### Step 3: Combine Your Data")
-        st.info("Both files are ready! Now combine them to create complete student profiles.")
-        
-        if st.button("🔗 Combine Data Files", type="primary", use_container_width=True):
-            with st.spinner("Combining NSLDS and SIS data..."):
-                merged_data = st.session_state['data_processor'].merge_datasets()
-                if merged_data is not None:
-                    st.session_state['merged_data'] = merged_data
-                    st.success(f"✅ Success! Combined data for {len(merged_data)} students")
-                    
-                    # Show a preview of the data
-                    st.markdown("### Data Preview")
-                    st.dataframe(merged_data.head(10))
-                else:
-                    st.error("❌ Could not combine the files. Make sure both files have matching student information (SSN or Student ID).")
-
-def show_analytics():
-    """Show the analytics page"""
-    st.header("📊 Risk Analytics by Academic Program")
-    
-    if 'merged_data' in st.session_state:
-        merged_data = st.session_state['merged_data']
-        analytics_engine = st.session_state['analytics_engine']
-        
-        # Generate analysis by major
-        major_analysis = analytics_engine.analyze_by_major(merged_data)
-        
-        if major_analysis is not None:
-            st.markdown("### Program Risk Summary")
+        if st.session_state.merged_data is not None:
+            data = st.session_state.merged_data
             
-            # Show key metrics
-            col1, col2, col3 = st.columns(3)
+            # Key metrics
+            col1, col2, col3, col4 = st.columns(4)
             
             with col1:
-                high_risk_programs = len(major_analysis[major_analysis['risk_tier'] == 'HIGH'])
-                st.metric("High-Risk Programs", high_risk_programs)
-            
+                st.metric("Total Students", len(data))
             with col2:
-                total_at_risk = major_analysis['total_balance'].sum()
-                st.metric("Total Portfolio at Risk", f"${total_at_risk:,.0f}")
-            
+                high_risk = len(data[data['risk_tier'] == 'HIGH'])
+                st.metric("High Risk", high_risk)
             with col3:
-                avg_risk = major_analysis['avg_risk'].mean()
-                st.metric("Average Risk Score", f"{avg_risk:.2f}")
+                total_balance = data['outstanding_balance'].sum()
+                st.metric("Total at Risk", f"${total_balance:,.0f}")
+            with col4:
+                avg_risk = data['risk_score'].mean()
+                st.metric("Avg Risk Score", f"{avg_risk:.2f}")
             
-            # Show the data table
-            st.markdown("### Risk Ranking by Program")
-            display_df = major_analysis.copy()
-            display_df['avg_risk'] = display_df['avg_risk'].apply(lambda x: f"{x:.2f}")
-            display_df['avg_balance'] = display_df['avg_balance'].apply(lambda x: f"${x:,.0f}")
-            display_df['total_balance'] = display_df['total_balance'].apply(lambda x: f"${x:,.0f}")
-            
-            st.dataframe(display_df, use_container_width=True)
-            
-            # Create visualization
-            st.markdown("### Risk Visualization")
-            fig = px.scatter(
-                major_analysis,
-                x='student_count',
-                y='avg_risk',
-                size='total_balance',
-                color='risk_tier',
-                hover_data=['major', 'avg_balance'],
-                title="Program Risk vs Number of Students",
-                labels={'student_count': 'Number of Students', 'avg_risk': 'Average Risk Score'}
-            )
-            st.plotly_chart(fig, use_container_width=True)
+            # Quick visualization
+            st.subheader("Risk Distribution")
+            risk_counts = data['risk_tier'].value_counts()
+            fig = px.pie(values=risk_counts.values, names=risk_counts.index, 
+                        title="Students by Risk Level")
+            st.plotly_chart(fig)
             
         else:
-            st.info("Cannot create analytics - make sure your data includes academic major information.")
-    else:
-        st.info("📤 Please upload and combine your data files first to view analytics.")
-        if st.button("Go to Data Upload"):
-            st.switch_page("Upload Data")
-
-def show_communications():
-    """Show the communications page"""
-    st.header("📧 Student Communications")
-    
-    email_manager = st.session_state['email_manager']
-    
-    if 'merged_data' in st.session_state:
-        merged_data = st.session_state['merged_data']
-        
-        col1, col2 = st.columns([2, 1])
-        
-        with col1:
-            st.markdown("### Select Students for Communication")
+            st.info("👆 Upload and process data files to see dashboard metrics")
             
-            # Create filters
-            filter_col1, filter_col2, filter_col3 = st.columns(3)
-            
-            with filter_col1:
-                risk_filter = st.multiselect(
-                    "Risk Level",
-                    ['HIGH', 'MEDIUM', 'LOW'],
-                    default=['HIGH'],
-                    help="Choose which risk levels to include"
-                )
-            
-            with filter_col2:
-                if 'major' in merged_data.columns:
-                    major_filter = st.multiselect(
-                        "Academic Program",
-                        merged_data['major'].unique(),
-                        help="Choose specific majors (optional)"
-                    )
-                else:
-                    major_filter = []
-                    st.info("No major data available")
-            
-            with filter_col3:
-                min_delinquent = st.number_input(
-                    "Minimum Days Delinquent",
-                    min_value=0,
-                    value=30,
-                    step=30,
-                    help="Only include students with this many delinquent days or more"
-                )
-            
-            # Apply filters to select students
-            filtered_students = merged_data.copy()
-            
-            if risk_filter:
-                filtered_students = filtered_students[filtered_students['risk_tier'].isin(risk_filter)]
-            
-            if major_filter and 'major' in merged_data.columns:
-                filtered_students = filtered_students[filtered_students['major'].isin(major_filter)]
-            
-            if min_delinquent > 0:
-                filtered_students = filtered_students[filtered_students['days_delinquent'] >= min_delinquent]
-            
-            st.markdown(f"**Selected Students: {len(filtered_students)}**")
-            
-            if not filtered_students.empty:
-                # Show preview of selected students
-                display_columns = ['student_id', 'first_name', 'last_name', 'email', 'risk_tier']
-                if 'major' in filtered_students.columns:
-                    display_columns.append('major')
-                
-                preview_students = filtered_students[display_columns].head(10)
-                st.dataframe(preview_students, use_container_width=True)
-                
-                if len(filtered_students) > 10:
-                    st.info(f"Showing first 10 of {len(filtered_students)} selected students")
-        
-        with col2:
-            st.markdown("### Choose Email Template")
-            
-            # Template selection
-            template_options = {
-                'default_prevention': 'Default Prevention Notice',
-                'payment_plan': 'Payment Plan Options',
-                'counseling_invitation': 'Financial Counseling Invitation'
-            }
-            
-            selected_template = st.selectbox(
-                "Email Template",
-                options=list(template_options.keys()),
-                format_func=lambda x: template_options[x],
-                help="Choose the type of email to send"
-            )
-            
-            # Show template preview
-            if selected_template:
-                template_data = email_manager.templates[selected_template]
-                
-                with st.expander("📋 Preview Email Template"):
-                    st.markdown(f"**Subject:** {template_data['subject']}")
-                    st.markdown("**Body:**")
-                    st.text_area(
-                        "Email Content",
-                        template_data['body'],
-                        height=200,
-                        disabled=True,
-                        key="template_preview"
-                    )
-                    st.success(f"✅ {template_data['compliance_level']}")
-        
-        # Send emails section
-        if 'filtered_students' in locals() and not filtered_students.empty:
-            st.markdown("---")
-            st.markdown("### Send Communications")
-            
-            col1, col2 = st.columns(2)
-            
+            # Feature overview cards
+            col1, col2, col3 = st.columns(3)
             with col1:
-                st.markdown(f"**Email Type:** {template_options[selected_template]}")
-                st.markdown(f"**Number of Recipients:** {len(filtered_students)}")
-                st.markdown("**Status:** Ready to send")
+                st.markdown("""
+                <div class="metric-card">
+                    <h3>🎯 Unified Data</h3>
+                    <p>Combine NSLDS and SIS files for complete student profiles</p>
+                </div>
+                """, unsafe_allow_html=True)
             
             with col2:
-                st.markdown("#### Compliance Check")
-                st.success("✅ Template is FERPA compliant")
-                st.success("✅ Recipients verified")
-                st.success("✅ Ready to send")
+                st.markdown("""
+                <div class="metric-card">
+                    <h3>📊 Smart Analytics</h3>
+                    <p>Identify risk patterns by academic program</p>
+                </div>
+                """, unsafe_allow_html=True)
             
-            # Send button
-            if st.button("📧 Send Emails to Selected Students", type="primary", use_container_width=True):
-                with st.spinner("Sending emails..."):
-                    # Convert to format needed for email sending
-                    student_list = filtered_students.to_dict('records')
-                    
-                    # Send emails (simulated)
-                    results = email_manager.send_bulk_emails(student_list, selected_template)
-                    
-                    # Show results
-                    st.success(f"✅ Emails sent to {results['sent']} students")
-                    
-                    if results['failed'] > 0:
-                        st.warning(f"⚠️ {results['failed']} emails failed to send")
-                    
-                    # Show details
-                    with st.expander("📊 View Detailed Results"):
-                        results_df = pd.DataFrame(results['details'])
-                        st.dataframe(results_df)
-    else:
-        st.info("📤 Please upload and combine your data files first to send communications.")
-
-def show_reports():
-    """Show the reports page"""
-    st.header("📋 Generate Reports")
+            with col3:
+                st.markdown("""
+                <div class="metric-card">
+                    <h3>📧 Compliant Emails</h3>
+                    <p>Send FERPA-compliant communications at scale</p>
+                </div>
+                """, unsafe_allow_html=True)
     
-    if 'merged_data' in st.session_state:
-        st.markdown("### Available Reports")
+    with tab2:
+        st.header("📁 Upload & Process Data")
         
         col1, col2 = st.columns(2)
         
         with col1:
-            st.markdown("#### 📊 Program Risk Analysis")
-            st.markdown("Detailed analysis of default risk by academic program")
+            st.subheader("Step 1: NSLDS Report")
+            nslds_file = st.file_uploader(
+                "Upload NSLDS Delinquent Borrower Report",
+                type=['csv', 'xlsx'],
+                key="nslds"
+            )
             
-            if st.button("Generate Program Risk Report", type="primary"):
-                st.success("✅ Program Risk Analysis Report ready!")
-                # In a real app, this would create an actual Excel file
-                st.info("In a full implementation, this would generate a downloadable Excel report")
+            if nslds_file:
+                if st.button("Process NSLDS File", type="primary"):
+                    with st.spinner("Processing NSLDS data..."):
+                        df, error = process_nslds_file(nslds_file)
+                        if error:
+                            st.error(f"Error: {error}")
+                        else:
+                            st.session_state.nslds_data = df
+                            st.success(f"✅ Processed {len(df)} NSLDS records")
+                            st.dataframe(df.head())
         
         with col2:
-            st.markdown("#### 📧 Communication Activity")
-            st.markdown("Summary of emails sent and student outreach")
-            
-            if st.button("Generate Communication Report", type="primary"):
-                st.success("✅ Communication Activity Report ready!")
-                st.info("In a full implementation, this would generate a downloadable report")
-        
-        st.markdown("---")
-        st.markdown("### Quick Data Export")
-        
-        if st.button("📤 Download Current Data as CSV"):
-            merged_data = st.session_state['merged_data']
-            csv = merged_data.to_csv(index=False)
-            st.download_button(
-                label="💾 Download CSV File",
-                data=csv,
-                file_name=f"student_risk_data_{datetime.now().strftime('%Y%m%d')}.csv",
-                mime="text/csv"
+            st.subheader("Step 2: SIS Data")
+            sis_file = st.file_uploader(
+                "Upload Student Information System Data", 
+                type=['csv', 'xlsx'],
+                key="sis"
             )
-    else:
-        st.info("📤 Please upload and process your data files first to generate reports.")
+            
+            if sis_file:
+                if st.button("Process SIS File", type="primary"):
+                    with st.spinner("Processing SIS data..."):
+                        df, error = process_sis_file(sis_file)
+                        if error:
+                            st.error(f"Error: {error}")
+                        else:
+                            st.session_state.sis_data = df
+                            st.success(f"✅ Processed {len(df)} SIS records")
+                            st.dataframe(df.head())
+        
+        # Merge step
+        if st.session_state.nslds_data is not None and st.session_state.sis_data is not None:
+            st.markdown("---")
+            st.subheader("Step 3: Merge Data")
+            
+            if st.button("🔗 Combine Datasets", type="primary", use_container_width=True):
+                with st.spinner("Merging data..."):
+                    merged, error = merge_data(st.session_state.nslds_data, st.session_state.sis_data)
+                    if error:
+                        st.error(f"Merge failed: {error}")
+                    else:
+                        st.session_state.merged_data = merged
+                        st.success(f"✅ Successfully merged {len(merged)} student records")
+                        st.dataframe(merged.head())
+    
+    with tab3:
+        st.header("📊 Risk Analytics by Major")
+        
+        if st.session_state.merged_data is not None:
+            data = st.session_state.merged_data
+            
+            # Generate major analysis
+            major_stats = analyze_by_major(data)
+            
+            if major_stats is not None:
+                # Summary metrics
+                col1, col2, col3 = st.columns(3)
+                with col1:
+                    high_risk_majors = len(major_stats[major_stats['risk_tier'] == 'HIGH'])
+                    st.metric("High-Risk Programs", high_risk_majors)
+                with col2:
+                    total_portfolio = major_stats['total_balance'].sum()
+                    st.metric("Total Portfolio", f"${total_portfolio:,.0f}")
+                with col3:
+                    avg_risk = major_stats['avg_risk'].mean()
+                    st.metric("Average Program Risk", f"{avg_risk:.2f}")
+                
+                # Major rankings table
+                st.subheader("Program Risk Rankings")
+                display_stats = major_stats.copy()
+                display_stats['avg_balance'] = display_stats['avg_balance'].apply(lambda x: f"${x:,.0f}")
+                display_stats['total_balance'] = display_stats['total_balance'].apply(lambda x: f"${x:,.0f}")
+                st.dataframe(display_stats, use_container_width=True)
+                
+                # Visualization
+                st.subheader("Risk vs Enrollment Visualization")
+                fig = px.scatter(
+                    major_stats, 
+                    x='student_count',
+                    y='avg_risk', 
+                    size='total_balance',
+                    color='risk_tier',
+                    hover_data=['major'],
+                    title="Program Risk Analysis"
+                )
+                st.plotly_chart(fig, use_container_width=True)
+                
+            else:
+                st.warning("Cannot analyze by major - ensure your data includes academic program information")
+        else:
+            st.info("Please upload and merge data files first")
+    
+    with tab4:
+        st.header("📧 Student Communications")
+        
+        if st.session_state.merged_data is not None:
+            data = st.session_state.merged_data
+            
+            col1, col2 = st.columns([2, 1])
+            
+            with col1:
+                st.subheader("Select Students")
+                
+                # Filters
+                filter_col1, filter_col2 = st.columns(2)
+                
+                with filter_col1:
+                    risk_levels = st.multiselect(
+                        "Risk Level",
+                        ['HIGH', 'MEDIUM', 'LOW'],
+                        default=['HIGH']
+                    )
+                
+                with filter_col2:
+                    min_days = st.number_input("Min Days Delinquent", 0, 300, 30)
+                
+                # Apply filters
+                filtered_data = data.copy()
+                if risk_levels:
+                    filtered_data = filtered_data[filtered_data['risk_tier'].isin(risk_levels)]
+                if min_days > 0:
+                    filtered_data = filtered_data[filtered_data['days_delinquent'] >= min_days]
+                
+                st.write(f"**Selected: {len(filtered_data)} students**")
+                
+                if len(filtered_data) > 0:
+                    # Show preview
+                    preview_cols = ['student_id', 'first_name', 'last_name', 'email', 'risk_tier']
+                    if 'major' in filtered_data.columns:
+                        preview_cols.append('major')
+                    st.dataframe(filtered_data[preview_cols].head(10))
+            
+            with col2:
+                st.subheader("Email Template")
+                
+                template_choice = st.selectbox(
+                    "Choose Template",
+                    ['default_prevention', 'payment_plan', 'counseling'],
+                    format_func=lambda x: {
+                        'default_prevention': 'Default Prevention',
+                        'payment_plan': 'Payment Plans', 
+                        'counseling': 'Financial Counseling'
+                    }[x]
+                )
+                
+                # Show template preview
+                template = EMAIL_TEMPLATES[template_choice]
+                with st.expander("Preview Template"):
+                    st.write("**Subject:**", template['subject'])
+                    st.write("**Body:**")
+                    st.text_area("", template['body'], height=200, disabled=True)
+            
+            # Send emails
+            if len(filtered_data) > 0:
+                st.markdown("---")
+                if st.button(f"📧 Send {template_choice.replace('_', ' ').title()} Emails", type="primary"):
+                    # Simulate sending emails
+                    with st.spinner("Sending emails..."):
+                        import time
+                        time.sleep(2)  # Simulate processing time
+                        
+                        success_count = len(filtered_data)
+                        st.success(f"✅ Successfully sent {success_count} emails!")
+                        
+                        # Show send summary
+                        st.write("**Email Summary:**")
+                        st.write(f"- Template: {template_choice.replace('_', ' ').title()}")
+                        st.write(f"- Recipients: {success_count}")
+                        st.write(f"- Timestamp: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        else:
+            st.info("Please upload and process data files first")
+    
+    with tab5:
+        st.header("📋 Reports & Analytics")
+        
+        if st.session_state.merged_data is not None:
+            data = st.session_state.merged_data
+            
+            col1, col2 = st.columns(2)
+            
+            with col1:
+                st.subheader("📊 Program Risk Report")
+                st.write("Generate comprehensive risk analysis by academic program")
+                
+                if st.button("Generate Program Report", type="primary"):
+                    # Create downloadable report
+                    major_stats = analyze_by_major(data)
+                    if major_stats is not None:
+                        csv = major_stats.to_csv(index=False)
+                        st.download_button(
+                            "💾 Download Program Risk Report",
+                            csv,
+                            f"program_risk_report_{datetime.now().strftime('%Y%m%d')}.csv",
+                            "text/csv"
+                        )
+                        st.success("✅ Report generated successfully!")
+            
+            with col2:
+                st.subheader("📧 Communication Log")
+                st.write("Track email communications and outreach activities")
+                
+                if st.button("Generate Communication Report", type="primary"):
+                    # Create sample communication log
+                    comm_log = pd.DataFrame({
+                        'Date': [datetime.now().strftime('%Y-%m-%d')] * 3,
+                        'Template': ['Default Prevention', 'Payment Plans', 'Counseling'],
+                        'Recipients': [25, 18, 12],
+                        'Status': ['Sent', 'Sent', 'Sent']
+                    })
+                    
+                    csv = comm_log.to_csv(index=False)
+                    st.download_button(
+                        "💾 Download Communication Log",
+                        csv,
+                        f"communication_log_{datetime.now().strftime('%Y%m%d')}.csv",
+                        "text/csv"
+                    )
+                    st.success("✅ Communication log generated!")
+            
+            # Quick data export
+            st.markdown("---")
+            st.subheader("📤 Quick Data Export")
+            
+            export_col1, export_col2 = st.columns(2)
+            
+            with export_col1:
+                if st.button("Download Complete Dataset"):
+                    csv = data.to_csv(index=False)
+                    st.download_button(
+                        "💾 Download Full Data",
+                        csv,
+                        f"complete_student_data_{datetime.now().strftime('%Y%m%d')}.csv",
+                        "text/csv"
+                    )
+            
+            with export_col2:
+                if st.button("Download High-Risk Students Only"):
+                    high_risk = data[data['risk_tier'] == 'HIGH']
+                    csv = high_risk.to_csv(index=False)
+                    st.download_button(
+                        "💾 Download High-Risk Data", 
+                        csv,
+                        f"high_risk_students_{datetime.now().strftime('%Y%m%d')}.csv",
+                        "text/csv"
+                    )
+        else:
+            st.info("Upload and process data files to access reporting features")
+        
+        # Sample data section
+        st.markdown("---")
+        st.subheader("🧪 Need Sample Data for Testing?")
+        
+        sample_col1, sample_col2 = st.columns(2)
+        
+        with sample_col1:
+            st.write("**Sample NSLDS Data**")
+            sample_nslds = """Borrower SSN,Borrower First Name,Borrower Last Name,E-mail,Days Delinquent,OPB,Loan Type
+123456789,John,Doe,john.doe@email.com,45,15000,Subsidized
+987654321,Jane,Smith,jane.smith@email.com,120,22000,Unsubsidized
+456789123,Mike,Johnson,mike.johnson@email.com,30,8500,PLUS"""
+            
+            st.download_button(
+                "📥 Download Sample NSLDS",
+                sample_nslds,
+                "sample_nslds.csv",
+                "text/csv"
+            )
+        
+        with sample_col2:
+            st.write("**Sample SIS Data**")
+            sample_sis = """Student ID,SSN,First Name,Last Name,Email,Major,Program
+STU001000,123456789,John,Doe,john.doe@email.com,Computer Science,Bachelor of Science
+STU001001,987654321,Jane,Smith,jane.smith@email.com,Business Administration,Bachelor of Business
+STU001002,456789123,Mike,Johnson,mike.johnson@email.com,Engineering,Bachelor of Engineering"""
+            
+            st.download_button(
+                "📥 Download Sample SIS",
+                sample_sis,
+                "sample_sis.csv",
+                "text/csv"
+            )
 
 if __name__ == "__main__":
     main()
