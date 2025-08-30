@@ -249,113 +249,62 @@ def main():
     # Main tabs
     tab1, tab2, tab3, tab4, tab5 = st.tabs(["🏠 Dashboard", "📁 Upload Data", "📊 Analytics", "📧 Communications", "📋 Reports"])
     
-with tab1:
-    # Always show the main header
-    st.markdown("""
-    <div class="main-header">
-        <h1>🎓 ChartED Solutions</h1>
-        <h2>Unified Financial Aid Portal</h2>
-        <p>Streamline student loan risk management and FERPA-compliant communications</p>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    if st.session_state.merged_data is not None:
-        # Show data dashboard when data exists
-        data = st.session_state.merged_data
+    with tab1:
+        st.header("Dashboard Overview")
         
-        st.subheader("Current Data Summary")
-        
-        # Key metrics
-        col1, col2, col3, col4 = st.columns(4)
-        
-        with col1:
-            st.metric("Total Students", len(data))
-        with col2:
-            high_risk = len(data[data['risk_tier'] == 'HIGH'])
-            st.metric("High Risk", high_risk)
-        with col3:
-            total_balance = data['outstanding_balance'].sum()
-            st.metric("Total at Risk", f"${total_balance:,.0f}")
-        with col4:
-            avg_risk = data['risk_score'].mean()
-            st.metric("Avg Risk Score", f"{avg_risk:.2f}")
-        
-        # Quick visualization
-        st.subheader("Risk Distribution")
-        risk_counts = data['risk_tier'].value_counts()
-        fig = px.pie(values=risk_counts.values, names=risk_counts.index, 
-                    title="Students by Risk Level")
-        st.plotly_chart(fig, use_container_width=True)
-        
-    else:
-        # Show welcome home screen when no data
-        st.subheader("Welcome to Your Financial Aid Risk Management System")
-        
-        # Feature overview cards
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            st.markdown("""
-            <div class="metric-card">
-                <h3>🎯 Unified Data Processing</h3>
-                <p>Upload and combine NSLDS delinquent borrower reports with SIS academic data for comprehensive student risk profiles.</p>
-            </div>
-            """, unsafe_allow_html=True)
-        
-        with col2:
-            st.markdown("""
-            <div class="metric-card">
-                <h3>📊 Program-Based Analytics</h3>
-                <p>Identify which academic programs have the highest default risk and prioritize intervention strategies accordingly.</p>
-            </div>
-            """, unsafe_allow_html=True)
-        
-        with col3:
-            st.markdown("""
-            <div class="metric-card">
-                <h3>📧 FERPA-Compliant Communications</h3>
-                <p>Send targeted, compliant emails to at-risk student populations using pre-approved templates.</p>
-            </div>
-            """, unsafe_allow_html=True)
-        
-        # Getting started section
-        st.markdown("---")
-        st.subheader("Getting Started")
-        
-        start_col1, start_col2 = st.columns(2)
-        
-        with start_col1:
-            st.markdown("""
-            **Step 1: Upload Your Data**
-            - Go to the "Upload Data" tab
-            - Upload your NSLDS delinquent borrower report
-            - Upload your SIS data with student majors
-            - Combine the datasets
-            """)
-        
-        with start_col2:
-            st.markdown("""
-            **Step 2: Analyze and Communicate**
-            - Review risk analytics by major
-            - Select at-risk student populations
-            - Send FERPA-compliant communications
-            - Generate comprehensive reports
-            """)
-        
-        # Quick access buttons
-        st.markdown("### Quick Actions")
-        action_col1, action_col2, action_col3 = st.columns(3)
-        
-        with action_col1:
-            if st.button("📁 Start by Uploading Data", use_container_width=True, type="primary"):
-                st.info("👆 Click on the 'Upload Data' tab above to begin")
-        
-        with action_col2:
-            if st.button("📥 Download Sample Data", use_container_width=True):
-                st.info("👆 Go to the 'Reports' tab to download sample files for testing")
-        
-        with action_col3:
-            if st.button("📖 View Documentation", use_container_width=True):
-                st.info("Check the README in your GitHub repository for detailed documentation")
+        if st.session_state.merged_data is not None:
+            data = st.session_state.merged_data
+            
+            # Key metrics
+            col1, col2, col3, col4 = st.columns(4)
+            
+            with col1:
+                st.metric("Total Students", len(data))
+            with col2:
+                high_risk = len(data[data['risk_tier'] == 'HIGH'])
+                st.metric("High Risk", high_risk)
+            with col3:
+                total_balance = data['outstanding_balance'].sum()
+                st.metric("Total at Risk", f"${total_balance:,.0f}")
+            with col4:
+                avg_risk = data['risk_score'].mean()
+                st.metric("Avg Risk Score", f"{avg_risk:.2f}")
+            
+            # Quick visualization
+            st.subheader("Risk Distribution")
+            risk_counts = data['risk_tier'].value_counts()
+            fig = px.pie(values=risk_counts.values, names=risk_counts.index, 
+                        title="Students by Risk Level")
+            st.plotly_chart(fig)
+            
+        else:
+            st.info("👆 Upload and process data files to see dashboard metrics")
+            
+            # Feature overview cards
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                st.markdown("""
+                <div class="metric-card">
+                    <h3>🎯 Unified Data</h3>
+                    <p>Combine NSLDS and SIS files for complete student profiles</p>
+                </div>
+                """, unsafe_allow_html=True)
+            
+            with col2:
+                st.markdown("""
+                <div class="metric-card">
+                    <h3>📊 Smart Analytics</h3>
+                    <p>Identify risk patterns by academic program</p>
+                </div>
+                """, unsafe_allow_html=True)
+            
+            with col3:
+                st.markdown("""
+                <div class="metric-card">
+                    <h3>📧 Compliant Emails</h3>
+                    <p>Send FERPA-compliant communications at scale</p>
+                </div>
+                """, unsafe_allow_html=True)
     
     with tab2:
         st.header("📁 Upload & Process Data")
@@ -496,13 +445,12 @@ with tab1:
                 st.write(f"**Selected: {len(filtered_data)} students**")
                 
                 if len(filtered_data) > 0:
-                    # Show preview - only include columns that actually exist
-                    available_cols = ['student_id', 'first_name', 'last_name', 'email', 'risk_tier', 'major']
-                    preview_cols = [col for col in available_cols if col in filtered_data.columns]
-                    if preview_cols:
-                        st.dataframe(filtered_data[preview_cols].head(10))
-                    else:
-                        st.dataframe(filtered_data.head(10))
+                    # Show preview
+                    preview_cols = ['student_id', 'first_name', 'last_name', 'email', 'risk_tier']
+                    if 'major' in filtered_data.columns:
+                        preview_cols.append('major')
+                    st.dataframe(filtered_data[preview_cols].head(10))
+            
             with col2:
                 st.subheader("Email Template")
                 
