@@ -1,18 +1,13 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-from datetime import datetime
-import sys
-import os
+from datetime import import datetime
+import random
+import io
 
-# Add utils to path so Python can find our custom files
-sys.path.append(os.path.dirname(__file__))
 
-# Import our custom functions
-from utils.data_processor import UnifiedDataProcessor
-from utils.email_manager import EmailManager
-from utils.analytics import MajorAnalyticsEngine
-from config.settings import *
+
+
 
 # Configure the page
 st.set_page_config(
