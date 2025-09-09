@@ -450,7 +450,7 @@ def main():
                     if 'major' in filtered_data.columns:
                         preview_cols.append('major')
                     if len(filtered_data) > 0:
-                    st.dataframe(filtered_data.head(10))
+                        st.dataframe(filtered_data.head(10))
                     
                     display_columns = []
                     possible_columns = ['student_id', 'first_name', 'last_name', 'email', 'risk_tier', 'major', 'outstanding_balance', 'days_delinquent']
