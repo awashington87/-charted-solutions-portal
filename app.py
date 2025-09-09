@@ -451,7 +451,7 @@ def main():
                         preview_cols.append('major')
                     if len(filtered_data) > 0:
                     st.dataframe(filtered_data.head(10))
-                    st.write("**Preview of selected students:**")
+                    
                     display_columns = []
                     possible_columns = ['student_id', 'first_name', 'last_name', 'email', 'risk_tier', 'major', 'outstanding_balance', 'days_delinquent']
                     
