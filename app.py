@@ -449,7 +449,22 @@ def main():
                     preview_cols = ['student_id', 'first_name', 'last_name', 'email', 'risk_tier']
                     if 'major' in filtered_data.columns:
                         preview_cols.append('major')
-                    st.dataframe(filtered_data[preview_cols].head(10))
+                    if len(filtered_data) > 0:
+                    # Show preview with only available columns
+                    st.write("**Preview of selected students:**")
+                    # Get the first few important columns that exist
+                    display_columns = []
+                    possible_columns = ['student_id', 'first_name', 'last_name', 'email', 'risk_tier', 'major', 'outstanding_balance', 'days_delinquent']
+                    
+                    for col in possible_columns:
+                        if col in filtered_data.columns:
+                            display_columns.append(col)
+                    
+                    if display_columns:
+                        st.dataframe(filtered_data[display_columns].head(10))
+                    else:
+                        # If no expected columns exist, just show the first 5 columns
+                        st.dataframe(filtered_data.iloc[:10, :5])
             
             with col2:
                 st.subheader("Email Template")
