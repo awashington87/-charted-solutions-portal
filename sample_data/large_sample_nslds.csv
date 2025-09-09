@@ -1,0 +1,103 @@
+import pandas as pd
+import random
+from datetime import datetime, timedelta
+
+# Set seed for reproducible data
+random.seed(42)
+
+# Generate 500 realistic NSLDS records
+def generate_nslds_data(num_records=500):
+    
+    # Lists for generating realistic data
+    first_names = [
+        "James", "Mary", "John", "Patricia", "Robert", "Jennifer", "Michael", "Linda", 
+        "William", "Elizabeth", "David", "Barbara", "Richard", "Susan", "Joseph", "Jessica",
+        "Thomas", "Sarah", "Christopher", "Karen", "Charles", "Nancy", "Daniel", "Lisa",
+        "Matthew", "Betty", "Anthony", "Helen", "Mark", "Sandra", "Donald", "Donna",
+        "Steven", "Carol", "Paul", "Ruth", "Andrew", "Sharon", "Joshua", "Michelle",
+        "Kenneth", "Laura", "Kevin", "Sarah", "Brian", "Kimberly", "George", "Deborah",
+        "Timothy", "Dorothy", "Ronald", "Lisa", "Jason", "Nancy", "Edward", "Karen",
+        "Jeffrey", "Betty", "Ryan", "Helen", "Jacob", "Sandra", "Gary", "Donna",
+        "Nicholas", "Carol", "Eric", "Ruth", "Jonathan", "Sharon", "Stephen", "Michelle",
+        "Larry", "Laura", "Justin", "Sarah", "Scott", "Kimberly", "Brandon", "Deborah",
+        "Benjamin", "Dorothy", "Samuel", "Amy", "Gregory", "Angela", "Alexander", "Ashley",
+        "Patrick", "Brenda", "Jack", "Emma", "Dennis", "Olivia", "Jerry", "Cynthia"
+    ]
+    
+    last_names = [
+        "Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis",
+        "Rodriguez", "Martinez", "Hernandez", "Lopez", "Gonzalez", "Wilson", "Anderson", "Thomas",
+        "Taylor", "Moore", "Jackson", "Martin", "Lee", "Perez", "Thompson", "White",
+        "Harris", "Sanchez", "Clark", "Ramirez", "Lewis", "Robinson", "Walker", "Young",
+        "Allen", "King", "Wright", "Scott", "Torres", "Nguyen", "Hill", "Flores",
+        "Green", "Adams", "Nelson", "Baker", "Hall", "Rivera", "Campbell", "Mitchell",
+        "Carter", "Roberts", "Gomez", "Phillips", "Evans", "Turner", "Diaz", "Parker",
+        "Cruz", "Edwards", "Collins", "Reyes", "Stewart", "Morris", "Morales", "Murphy",
+        "Cook", "Rogers", "Gutierrez", "Ortiz", "Morgan", "Cooper", "Peterson", "Bailey",
+        "Reed", "Kelly", "Howard", "Ramos", "Kim", "Cox", "Ward", "Richardson"
+    ]
+    
+    loan_types = ["Subsidized", "Unsubsidized", "PLUS", "Perkins", "Grad PLUS"]
+    
+    # Create weighted distributions for more realistic data
+    def weighted_delinquency():
+        weights = [0.4, 0.25, 0.15, 0.1, 0.1]  # Most borrowers have lower delinquency
+        ranges = [(0, 29), (30, 89), (90, 179), (180, 269), (270, 500)]
+        selected_range = random.choices(ranges, weights=weights)[0]
+        return random.randint(selected_range[0], selected_range[1])
+    
+    def weighted_balance():
+        weights = [0.3, 0.35, 0.2, 0.1, 0.05]  # More borrowers have moderate balances
+        ranges = [(1000, 9999), (10000, 24999), (25000, 44999), (45000, 69999), (70000, 120000)]
+        selected_range = random.choices(ranges, weights=weights)[0]
+        return random.randint(selected_range[0], selected_range[1])
+    
+    records = []
+    
+    for i in range(num_records):
+        # Generate basic info
+        ssn = f"{random.randint(100, 999)}{random.randint(10, 99)}{random.randint(1000, 9999)}"
+        first_name = random.choice(first_names)
+        last_name = random.choice(last_names)
+        email = f"{first_name.lower()}.{last_name.lower()}@email.com"
+        
+        # Generate correlated financial data
+        days_delinquent = weighted_delinquency()
+        outstanding_balance = weighted_balance()
+        loan_type = random.choice(loan_types)
+        
+        # Some correlation between delinquency and balance
+        if days_delinquent > 180:
+            outstanding_balance = int(outstanding_balance * random.uniform(1.1, 1.5))
+        
+        records.append({
+            "Borrower SSN": ssn,
+            "Borrower First Name": first_name,
+            "Borrower Last Name": last_name,
+            "E-mail": email,
+            "Days Delinquent": days_delinquent,
+            "OPB": outstanding_balance,
+            "Loan Type": loan_type
+        })
+    
+    return pd.DataFrame(records)
+
+# Generate the data
+nslds_data = generate_nslds_data(500)
+
+# Save to CSV
+nslds_data.to_csv("large_sample_nslds.csv", index=False)
+
+print(f"Generated {len(nslds_data)} NSLDS records")
+print("\nSample data preview:")
+print(nslds_data.head(10))
+
+print("\nData summary:")
+print(f"Delinquency range: {nslds_data['Days Delinquent'].min()} - {nslds_data['Days Delinquent'].max()} days")
+print(f"Balance range: ${nslds_data['OPB'].min():,} - ${nslds_data['OPB'].max():,}")
+print(f"Loan types: {nslds_data['Loan Type'].value_counts().to_dict()}")
+
+# Show delinquency distribution
+delinq_bins = pd.cut(nslds_data['Days Delinquent'], bins=[0, 30, 90, 180, 270, 500], labels=['0-29', '30-89', '90-179', '180-269', '270+'])
+print(f"\nDelinquency distribution:")
+print(delinq_bins.value_counts())
