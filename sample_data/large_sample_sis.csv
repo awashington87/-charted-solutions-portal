@@ -1,0 +1,151 @@
+Student ID,SSN,First Name,Last Name,Email,Major,Program,Academic Standing,GPA,Credit Hours,Enrollment Status
+STU100000,102341234,James,Smith,james.smith@email.com,Business Administration,Bachelor of Business Administration,Good Standing,3.25,60,Full-time
+STU100001,987652345,Mary,Johnson,mary.johnson@email.com,Computer Science,Bachelor of Science in Computer Science,Academic Warning,2.45,45,Full-time
+STU100002,456783456,John,Williams,john.williams@email.com,Nursing,Bachelor of Science in Nursing,Good Standing,3.67,75,Full-time
+STU100003,789124567,Patricia,Brown,patricia.brown@email.com,Engineering,Bachelor of Engineering,Good Standing,3.12,90,Full-time
+STU100004,321655678,Robert,Jones,robert.jones@email.com,Psychology,Bachelor of Arts in Psychology,Dean's List,3.85,120,Full-time
+STU100005,147256789,Jennifer,Garcia,jennifer.garcia@email.com,Education,Bachelor of Education,Good Standing,3.34,36,Part-time
+STU100006,258367890,Michael,Miller,michael.miller@email.com,Liberal Arts,Bachelor of Arts,Academic Probation,1.89,24,Part-time
+STU100007,369148901,Linda,Davis,linda.davis@email.com,Criminal Justice,Bachelor of Science in Criminal Justice,Good Standing,3.01,48,Full-time
+STU100008,741859012,William,Rodriguez,william.rodriguez@email.com,Biology,Bachelor of Science in Biology,Academic Warning,2.23,72,Full-time
+STU100009,852960123,Elizabeth,Martinez,elizabeth.martinez@email.com,Marketing,Bachelor of Business in Marketing,Good Standing,3.56,84,Full-time
+STU100010,963071234,David,Hernandez,david.hernandez@email.com,Business Administration,Bachelor of Business Administration,Dean's List,3.78,96,Full-time
+STU100011,174182345,Barbara,Lopez,barbara.lopez@email.com,English,Bachelor of Arts in English,Good Standing,3.23,105,Full-time
+STU100012,285293456,Richard,Gonzalez,richard.gonzalez@email.com,Computer Science,Bachelor of Science in Computer Science,Good Standing,3.45,54,Full-time
+STU100013,396304567,Susan,Wilson,susan.wilson@email.com,History,Bachelor of Arts in History,Academic Warning,2.67,66,Full-time
+STU100014,407415678,Joseph,Anderson,joseph.anderson@email.com,Mathematics,Bachelor of Science in Mathematics,Good Standing,3.89,42,Full-time
+STU100015,518526789,Jessica,Thomas,jessica.thomas@email.com,Communications,Bachelor of Arts in Communications,Good Standing,3.12,78,Full-time
+STU100016,629637890,Thomas,Taylor,thomas.taylor@email.com,Art,Bachelor of Fine Arts,Dean's List,3.91,30,Part-time
+STU100017,730748901,Sarah,Moore,sarah.moore@email.com,Music,Bachelor of Music,Good Standing,3.34,87,Full-time
+STU100018,841859012,Christopher,Jackson,christopher.jackson@email.com,Social Work,Bachelor of Social Work,Academic Probation,1.75,39,Part-time
+STU100019,952960123,Karen,Martin,karen.martin@email.com,Accounting,Bachelor of Science in Accounting,Good Standing,3.67,93,Full-time
+STU100020,163071234,Charles,Lee,charles.lee@email.com,Pre-Med,Bachelor of Science - Pre-Medical,Academic Warning,2.34,57,Full-time
+STU100021,274182345,Nancy,Perez,nancy.perez@email.com,Hospitality Management,Bachelor of Science in Hospitality,Good Standing,3.23,33,Part-time
+STU100022,385293456,Daniel,Thompson,daniel.thompson@email.com,Engineering,Bachelor of Engineering,Good Standing,3.45,69,Full-time
+STU100023,496304567,Lisa,White,lisa.white@email.com,Nursing,Bachelor of Science in Nursing,Dean's List,3.82,81,Full-time
+STU100024,507415678,Matthew,Harris,matthew.harris@email.com,Psychology,Bachelor of Arts in Psychology,Good Standing,3.01,51,Full-time
+STU100025,618526789,Betty,Sanchez,betty.sanchez@email.com,Business Administration,Bachelor of Business Administration,Academic Probation,1.67,63,Full-time
+STU100026,729637890,Anthony,Clark,anthony.clark@email.com,Computer Science,Bachelor of Science in Computer Science,Good Standing,3.78,75,Full-time
+STU100027,830748901,Helen,Ramirez,helen.ramirez@email.com,Education,Bachelor of Education,Academic Warning,2.45,27,Part-time
+STU100028,941859012,Mark,Lewis,mark.lewis@email.com,Liberal Arts,Bachelor of Arts,Good Standing,3.12,87,Full-time
+STU100029,152960123,Sandra,Robinson,sandra.robinson@email.com,Criminal Justice,Bachelor of Science in Criminal Justice,Good Standing,3.56,99,Full-time
+STU100030,263071234,Donald,Walker,donald.walker@email.com,Biology,Bachelor of Science in Biology,Dean's List,3.89,21,Part-time
+STU100031,374182345,Donna,Young,donna.young@email.com,Marketing,Bachelor of Business in Marketing,Academic Warning,2.23,111,Full-time
+STU100032,485293456,Steven,Allen,steven.allen@email.com,English,Bachelor of Arts in English,Good Standing,3.34,45,Full-time
+STU100033,596304567,Carol,King,carol.king@email.com,History,Bachelor of Arts in History,Good Standing,3.67,57,Full-time
+STU100034,607415678,Paul,Wright,paul.wright@email.com,Mathematics,Bachelor of Science in Mathematics,Academic Probation,1.89,69,Full-time
+STU100035,718526789,Ruth,Scott,ruth.scott@email.com,Communications,Bachelor of Arts in Communications,Good Standing,3.23,33,Part-time
+STU100036,829637890,Andrew,Torres,andrew.torres@email.com,Art,Bachelor of Fine Arts,Good Standing,3.45,81,Full-time
+STU100037,930748901,Sharon,Nguyen,sharon.nguyen@email.com,Music,Bachelor of Music,Dean's List,3.91,93,Full-time
+STU100038,141859012,Joshua,Hill,joshua.hill@email.com,Social Work,Bachelor of Social Work,Academic Warning,2.34,39,Part-time
+STU100039,252960123,Michelle,Flores,michelle.flores@email.com,Accounting,Bachelor of Science in Accounting,Good Standing,3.78,105,Full-time
+STU100040,363071234,Kenneth,Green,kenneth.green@email.com,Pre-Med,Bachelor of Science - Pre-Medical,Good Standing,3.01,51,Full-time
+STU100041,474182345,Laura,Adams,laura.adams@email.com,Hospitality Management,Bachelor of Science in Hospitality,Academic Probation,1.75,63,Full-time
+STU100042,585293456,Kevin,Nelson,kevin.nelson@email.com,Business Administration,Bachelor of Business Administration,Good Standing,3.56,75,Full-time
+STU100043,696304567,Sarah,Baker,sarah.baker@email.com,Computer Science,Bachelor of Science in Computer Science,Academic Warning,2.67,27,Part-time
+STU100044,707415678,Brian,Hall,brian.hall@email.com,Nursing,Bachelor of Science in Nursing,Dean's List,3.82,87,Full-time
+STU100045,818526789,Kimberly,Rivera,kimberly.rivera@email.com,Engineering,Bachelor of Engineering,Good Standing,3.12,99,Full-time
+STU100046,929637890,George,Campbell,george.campbell@email.com,Psychology,Bachelor of Arts in Psychology,Good Standing,3.34,21,Part-time
+STU100047,140748901,Deborah,Mitchell,deborah.mitchell@email.com,Education,Bachelor of Education,Academic Warning,2.45,111,Full-time
+STU100048,251859012,Timothy,Carter,timothy.carter@email.com,Liberal Arts,Bachelor of Arts,Good Standing,3.67,45,Full-time
+STU100049,362960123,Dorothy,Roberts,dorothy.roberts@email.com,Criminal Justice,Bachelor of Science in Criminal Justice,Dean's List,3.89,57,Full-time
+STU100050,473071234,Ronald,Gomez,ronald.gomez@email.com,Biology,Bachelor of Science in Biology,Academic Probation,1.67,69,Full-time
+STU100051,584182345,Lisa,Phillips,lisa.phillips@email.com,Marketing,Bachelor of Business in Marketing,Good Standing,3.23,33,Part-time
+STU100052,695293456,Jason,Evans,jason.evans@email.com,English,Bachelor of Arts in English,Good Standing,3.45,81,Full-time
+STU100053,706304567,Nancy,Turner,nancy.turner@email.com,History,Bachelor of Arts in History,Academic Warning,2.23,93,Full-time
+STU100054,817415678,Edward,Diaz,edward.diaz@email.com,Mathematics,Bachelor of Science in Mathematics,Good Standing,3.78,39,Part-time
+STU100055,928526789,Karen,Parker,karen.parker@email.com,Communications,Bachelor of Arts in Communications,Good Standing,3.01,105,Full-time
+STU100056,139637890,Jeffrey,Cruz,jeffrey.cruz@email.com,Art,Bachelor of Fine Arts,Academic Probation,1.89,51,Full-time
+STU100057,240748901,Betty,Edwards,betty.edwards@email.com,Music,Bachelor of Music,Dean's List,3.91,63,Full-time
+STU100058,351859012,Ryan,Collins,ryan.collins@email.com,Social Work,Bachelor of Social Work,Good Standing,3.34,75,Full-time
+STU100059,462960123,Helen,Reyes,helen.reyes@email.com,Accounting,Bachelor of Science in Accounting,Academic Warning,2.34,27,Part-time
+STU100060,573071234,Jacob,Stewart,jacob.stewart@email.com,Pre-Med,Bachelor of Science - Pre-Medical,Good Standing,3.67,87,Full-time
+STU100061,684182345,Sandra,Morris,sandra.morris@email.com,Hospitality Management,Bachelor of Science in Hospitality,Good Standing,3.12,99,Full-time
+STU100062,795293456,Gary,Morales,gary.morales@email.com,Business Administration,Bachelor of Business Administration,Dean's List,3.85,21,Part-time
+STU100063,806304567,Donna,Murphy,donna.murphy@email.com,Computer Science,Bachelor of Science in Computer Science,Academic Probation,1.75,111,Full-time
+STU100064,917415678,Nicholas,Cook,nicholas.cook@email.com,Nursing,Bachelor of Science in Nursing,Good Standing,3.56,45,Full-time
+STU100065,128526789,Carol,Rogers,carol.rogers@email.com,Engineering,Bachelor of Engineering,Academic Warning,2.67,57,Full-time
+STU100066,239637890,Eric,Gutierrez,eric.gutierrez@email.com,Psychology,Bachelor of Arts in Psychology,Good Standing,3.23,69,Full-time
+STU100067,340748901,Ruth,Ortiz,ruth.ortiz@email.com,Education,Bachelor of Education,Dean's List,3.82,33,Part-time
+STU100068,451859012,Jonathan,Morgan,jonathan.morgan@email.com,Liberal Arts,Bachelor of Arts,Good Standing,3.45,81,Full-time
+STU100069,562960123,Sharon,Cooper,sharon.cooper@email.com,Criminal Justice,Bachelor of Science in Criminal Justice,Academic Warning,2.23,93,Full-time
+STU100070,673071234,Stephen,Peterson,stephen.peterson@email.com,Biology,Bachelor of Science in Biology,Good Standing,3.78,39,Part-time
+STU100071,784182345,Michelle,Bailey,michelle.bailey@email.com,Marketing,Bachelor of Business in Marketing,Academic Probation,1.67,105,Full-time
+STU100072,895293456,Larry,Reed,larry.reed@email.com,English,Bachelor of Arts in English,Good Standing,3.01,51,Full-time
+STU100073,906304567,Laura,Kelly,laura.kelly@email.com,History,Bachelor of Arts in History,Good Standing,3.34,63,Full-time
+STU100074,117415678,Justin,Howard,justin.howard@email.com,Mathematics,Bachelor of Science in Mathematics,Dean's List,3.89,75,Full-time
+STU100075,228526789,Sarah,Ramos,sarah.ramos@email.com,Communications,Bachelor of Arts in Communications,Academic Warning,2.45,27,Part-time
+STU100076,339637890,Scott,Kim,scott.kim@email.com,Art,Bachelor of Fine Arts,Good Standing,3.67,87,Full-time
+STU100077,440748901,Kimberly,Cox,kimberly.cox@email.com,Music,Bachelor of Music,Good Standing,3.12,99,Full-time
+STU100078,551859012,Brandon,Ward,brandon.ward@email.com,Social Work,Bachelor of Social Work,Academic Probation,1.89,21,Part-time
+STU100079,662960123,Deborah,Richardson,deborah.richardson@email.com,Accounting,Bachelor of Science in Accounting,Good Standing,3.56,111,Full-time
+STU100080,773071234,Benjamin,Watson,benjamin.watson@email.com,Pre-Med,Bachelor of Science - Pre-Medical,Dean's List,3.91,45,Full-time
+STU100081,884182345,Dorothy,Brooks,dorothy.brooks@email.com,Hospitality Management,Bachelor of Science in Hospitality,Academic Warning,2.34,57,Full-time
+STU100082,995293456,Samuel,Chavez,samuel.chavez@email.com,Business Administration,Bachelor of Business Administration,Good Standing,3.23,69,Full-time
+STU100083,106304567,Amy,Wood,amy.wood@email.com,Computer Science,Bachelor of Science in Computer Science,Good Standing,3.45,33,Part-time
+STU100084,217415678,Gregory,James,gregory.james@email.com,Nursing,Bachelor of Science in Nursing,Academic Probation,1.75,81,Full-time
+STU100085,328526789,Angela,Bennett,angela.bennett@email.com,Engineering,Bachelor of Engineering,Dean's List,3.82,93,Full-time
+STU100086,439637890,Alexander,Gray,alexander.gray@email.com,Psychology,Bachelor of Arts in Psychology,Good Standing,3.78,39,Part-time
+STU100087,540748901,Ashley,Mendoza,ashley.mendoza@email.com,Education,Bachelor of Education,Academic Warning,2.67,105,Full-time
+STU100088,651859012,Patrick,Ruiz,patrick.ruiz@email.com,Liberal Arts,Bachelor of Arts,Good Standing,3.01,51,Full-time
+STU100089,762960123,Brenda,Hughes,brenda.hughes@email.com,Criminal Justice,Bachelor of Science in Criminal Justice,Good Standing,3.34,63,Full-time
+STU100090,873071234,Jack,Price,jack.price@email.com,Biology,Bachelor of Science in Biology,Academic Warning,2.23,75,Full-time
+STU100091,984182345,Emma,Alvarez,emma.alvarez@email.com,Marketing,Bachelor of Business in Marketing,Dean's List,3.89,27,Part-time
+STU100092,195293456,Dennis,Castillo,dennis.castillo@email.com,English,Bachelor of Arts in English,Academic Probation,1.67,87,Full-time
+STU100093,206304567,Olivia,Sanders,olivia.sanders@email.com,History,Bachelor of Arts in History,Good Standing,3.56,99,Full-time
+STU100094,317415678,Jerry,Patel,jerry.patel@email.com,Mathematics,Bachelor of Science in Mathematics,Good Standing,3.12,21,Part-time
+STU100095,428526789,Cynthia,Myers,cynthia.myers@email.com,Communications,Bachelor of Arts in Communications,Academic Warning,2.45,111,Full-time
+STU100096,539637890,Wayne,Long,wayne.long@email.com,Art,Bachelor of Fine Arts,Good Standing,3.67,45,Full-time
+STU100097,640748901,Melissa,Ross,melissa.ross@email.com,Music,Bachelor of Music,Dean's List,3.91,57,Full-time
+STU100098,751859012,Arthur,Foster,arthur.foster@email.com,Social Work,Bachelor of Social Work,Academic Probation,1.89,69,Full-time
+STU100099,862960123,Frances,Jimenez,frances.jimenez@email.com,Accounting,Bachelor of Science in Accounting,Good Standing,3.23,33,Part-time
+STU100100,973071234,Harold,Powell,harold.powell@email.com,Pre-Med,Bachelor of Science - Pre-Medical,Good Standing,3.45,81,Full-time
+STU100101,184182345,Jordan,Jenkins,jordan.jenkins@email.com,Hospitality Management,Bachelor of Science in Hospitality,Academic Warning,2.34,93,Full-time
+STU100102,295293456,Gloria,Perry,gloria.perry@email.com,Business Administration,Bachelor of Business Administration,Good Standing,3.78,39,Part-time
+STU100103,306304567,Ralph,Russell,ralph.russell@email.com,Computer Science,Bachelor of Science in Computer Science,Dean's List,3.85,105,Full-time
+STU100104,417415678,Teresa,Sullivan,teresa.sullivan@email.com,Nursing,Bachelor of Science in Nursing,Academic Probation,1.75,51,Full-time
+STU100105,528526789,Bobby,Butler,bobby.butler@email.com,Engineering,Bachelor of Engineering,Good Standing,3.01,63,Full-time
+STU100106,639637890,Annie,Simmons,annie.simmons@email.com,Psychology,Bachelor of Arts in Psychology,Good Standing,3.34,75,Full-time
+STU100107,740748901,Eugene,Patterson,eugene.patterson@email.com,Education,Bachelor of Education,Academic Warning,2.67,27,Part-time
+STU100108,851859012,Marie,Jordan,marie.jordan@email.com,Liberal Arts,Bachelor of Arts,Good Standing,3.67,87,Full-time
+STU100109,962960123,Louis,Reynolds,louis.reynolds@email.com,Criminal Justice,Bachelor of Science in Criminal Justice,Dean's List,3.82,99,Full-time
+STU100110,173071234,Lois,Hamilton,lois.hamilton@email.com,Biology,Bachelor of Science in Biology,Good Standing,3.56,21,Part-time
+STU100111,284182345,Philip,Graham,philip.graham@email.com,Marketing,Bachelor of Business in Marketing,Academic Warning,2.23,111,Full-time
+STU100112,395293456,Jean,Kim,jean.kim@email.com,English,Bachelor of Arts in English,Academic Probation,1.67,45,Full-time
+STU100113,406304567,Carl,Wallace,carl.wallace@email.com,History,Bachelor of Arts in History,Good Standing,3.12,57,Full-time
+STU100114,517415678,Cheryl,Woods,cheryl.woods@email.com,Mathematics,Bachelor of Science in Mathematics,Good Standing,3.45,69,Full-time
+STU100115,628526789,Keith,Cole,keith.cole@email.com,Communications,Bachelor of Arts in Communications,Dean's List,3.89,33,Part-time
+STU100116,739637890,Janet,West,janet.west@email.com,Art,Bachelor of Fine Arts,Academic Warning,2.34,81,Full-time
+STU100117,840748901,Willie,Jordan,willie.jordan@email.com,Music,Bachelor of Music,Good Standing,3.23,93,Full-time
+STU100118,951859012,Catherine,Owens,catherine.owens@email.com,Social Work,Bachelor of Social Work,Good Standing,3.78,39,Part-time
+STU100119,162960123,Lawrence,Reynolds,lawrence.reynolds@email.com,Accounting,Bachelor of Science in Accounting,Academic Probation,1.89,105,Full-time
+STU100120,273071234,Frances,Fisher,frances.fisher@email.com,Pre-Med,Bachelor of Science - Pre-Medical,Good Standing,3.01,51,Full-time
+STU100121,384182345,Roy,Ellis,roy.ellis@email.com,Hospitality Management,Bachelor of Science in Hospitality,Dean's List,3.91,63,Full-time
+STU100122,495293456,Janice,Harrison,janice.harrison@email.com,Business Administration,Bachelor of Business Administration,Academic Warning,2.45,75,Full-time
+STU100123,506304567,Albert,Gibson,albert.gibson@email.com,Computer Science,Bachelor of Science in Computer Science,Good Standing,3.34,27,Part-time
+STU100124,617415678,Joyce,Mcdonald,joyce.mcdonald@email.com,Nursing,Bachelor of Science in Nursing,Good Standing,3.67,87,Full-time
+STU100125,728526789,Noah,Cruz,noah.cruz@email.com,Engineering,Bachelor of Engineering,Academic Probation,1.75,99,Full-time
+STU100126,839637890,Diane,Marshall,diane.marshall@email.com,Psychology,Bachelor of Arts in Psychology,Good Standing,3.56,21,Part-time
+STU100127,940748901,Adam,Ortiz,adam.ortiz@email.com,Education,Bachelor of Education,Academic Warning,2.67,111,Full-time
+STU100128,151859012,Alice,Gomez,alice.gomez@email.com,Liberal Arts,Bachelor of Arts,Dean's List,3.82,45,Full-time
+STU100129,262960123,Gerald,Murray,gerald.murray@email.com,Criminal Justice,Bachelor of Science in Criminal Justice,Good Standing,3.12,57,Full-time
+STU100130,373071234,Judith,Freeman,judith.freeman@email.com,Biology,Bachelor of Science in Biology,Good Standing,3.45,69,Full-time
+STU100131,484182345,George,Wells,george.wells@email.com,Marketing,Bachelor of Business in Marketing,Academic Warning,2.23,33,Part-time
+STU100132,595293456,Julie,Webb,julie.webb@email.com,English,Bachelor of Arts in English,Academic Probation,1.67,81,Full-time
+STU100133,606304567,Harold,Simpson,harold.simpson@email.com,History,Bachelor of Arts in History,Good Standing,3.23,93,Full-time
+STU100134,717415678,Ann,Stevens,ann.stevens@email.com,Mathematics,Bachelor of Science in Mathematics,Dean's List,3.89,39,Part-time
+STU100135,828526789,Johnny,Tucker,johnny.tucker@email.com,Communications,Bachelor of Arts in Communications,Good Standing,3.78,105,Full-time
+STU100136,939637890,Mildred,Porter,mildred.porter@email.com,Art,Bachelor of Fine Arts,Academic Warning,2.34,51,Full-time
+STU100137,140748902,Frank,Hunter,frank.hunter@email.com,Music,Bachelor of Music,Good Standing,3.01,63,Full-time
+STU100138,251859013,Virginia,Hicks,virginia.hicks@email.com,Social Work,Bachelor of Social Work,Academic Probation,1.89,75,Full-time
+STU100139,362960124,Raymond,Crawford,raymond.crawford@email.com,Accounting,Bachelor of Science in Accounting,Good Standing,3.34,27,Part-time
+STU100140,473071235,Maria,Henry,maria.henry@email.com,Pre-Med,Bachelor of Science - Pre-Medical,Good Standing,3.67,87,Full-time
+STU100141,584182346,Roger,Boyd,roger.boyd@email.com,Hospitality Management,Bachelor of Science in Hospitality,Dean's List,3.91,99,Full-time
+STU100142,695293457,Evelyn,Mason,evelyn.mason@email.com,Business Administration,Bachelor of Business Administration,Academic Warning,2.45,21,Part-time
+STU100143,706304568,Henry,Morales,henry.morales@email.com,Computer Science,Bachelor of Science in Computer Science,Good Standing,3.56,111,Full-time
+STU100144,817415679,Irene,Pearson,irene.pearson@email.com,Nursing,Bachelor of Science in Nursing,Academic Probation,1.75,45,Full-time
+STU100145,928526780,Walter,Meyer,walter.meyer@email.com,Engineering,Bachelor of Engineering,Good Standing,3.12,57,Full-time
+STU100146,139637891,Rose,Rice,rose.rice@email.com,Psychology,Bachelor of Arts in Psychology,Good Standing,3.45,69,Full-time
+STU100147,240748902,Joe,Parker,joe.parker@email.com,Education,Bachelor of Education,Academic Warning,2.67,33,Part-time
+STU100148,351859013,Phyllis,Cooper,phyllis.cooper@email.com,Liberal Arts,Bachelor of Arts,Dean's List,3.82,81,Full-time
+STU100149,462960124,Eugene,Richardson,eugene.richardson@email.com,Criminal Justice,Bachelor of Science in Criminal Justice,Good Standing,3.23,93,Full-time
