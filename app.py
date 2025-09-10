@@ -589,9 +589,16 @@ def main():
         with sample_col1:
             st.write("**Sample NSLDS Data**")
             sample_nslds = """Borrower SSN,Borrower First Name,Borrower Last Name,E-mail,Days Delinquent,OPB,Loan Type
-123456789,John,Doe,john.doe@email.com,45,15000,Subsidized
-987654321,Jane,Smith,jane.smith@email.com,120,22000,Unsubsidized
-456789123,Mike,Johnson,mike.johnson@email.com,30,8500,PLUS"""
+102341234,James,Smith,james.smith@email.com,45,15234,Subsidized
+987652345,Mary,Johnson,mary.johnson@email.com,120,28750,Unsubsidized
+456783456,John,Williams,john.williams@email.com,30,8500,PLUS
+789124567,Patricia,Brown,patricia.brown@email.com,200,45200,Subsidized
+321655678,Robert,Jones,robert.jones@email.com,60,18000,Unsubsidized
+147256789,Jennifer,Garcia,jennifer.garcia@email.com,15,9500,Perkins
+258367890,Michael,Miller,michael.miller@email.com,180,38000,Grad PLUS
+369148901,Linda,Davis,linda.davis@email.com,75,22500,Subsidized
+741859012,William,Rodriguez,william.rodriguez@email.com,240,52000,Unsubsidized
+852960123,Elizabeth,Martinez,elizabeth.martinez@email.com,90,31200,PLUS"""
             
             st.download_button(
                 "📥 Download Sample NSLDS",
@@ -603,9 +610,16 @@ def main():
         with sample_col2:
             st.write("**Sample SIS Data**")
             sample_sis = """Student ID,SSN,First Name,Last Name,Email,Major,Program
-STU001000,123456789,John,Doe,john.doe@email.com,Computer Science,Bachelor of Science
-STU001001,987654321,Jane,Smith,jane.smith@email.com,Business Administration,Bachelor of Business
-STU001002,456789123,Mike,Johnson,mike.johnson@email.com,Engineering,Bachelor of Engineering"""
+STU100000,102341234,James,Smith,james.smith@email.com,Business Administration,Bachelor of Business Administration
+STU100001,987652345,Mary,Johnson,mary.johnson@email.com,Computer Science,Bachelor of Science in Computer Science
+STU100002,456783456,John,Williams,john.williams@email.com,Nursing,Bachelor of Science in Nursing
+STU100003,789124567,Patricia,Brown,patricia.brown@email.com,Engineering,Bachelor of Engineering
+STU100004,321655678,Robert,Jones,robert.jones@email.com,Psychology,Bachelor of Arts in Psychology
+STU100005,147256789,Jennifer,Garcia,jennifer.garcia@email.com,Education,Bachelor of Education
+STU100006,258367890,Michael,Miller,michael.miller@email.com,Liberal Arts,Bachelor of Arts
+STU100007,369148901,Linda,Davis,linda.davis@email.com,Criminal Justice,Bachelor of Science in Criminal Justice
+STU100008,741859012,William,Rodriguez,william.rodriguez@email.com,Biology,Bachelor of Science in Biology
+STU100009,852960123,Elizabeth,Martinez,elizabeth.martinez@email.com,Marketing,Bachelor of Business in Marketing"""
             
             st.download_button(
                 "📥 Download Sample SIS",
