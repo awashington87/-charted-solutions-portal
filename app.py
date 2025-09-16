@@ -243,7 +243,7 @@ def main():
         st.write("📋 Automated reporting")
         
         st.markdown("### 📞 Contact")
-        st.write("📧 apryll@visitcharted.com")
+        st.write("📧 info@visitcharted.com")
         st.write("🌐 visitcharted.com")
     
     # Main tabs
