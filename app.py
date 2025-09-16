@@ -860,10 +860,10 @@ def main():
                     except KeyError as e:
                         st.warning(f"Template requires additional data: {e}")
 
+            else:
+                st.info("No HIGH risk students found yet. Upload/merge data or adjust sample data to see this queue.")
         else:
-            st.info("No HIGH risk students found yet. Upload/merge data or adjust sample data to see this queue.")
-    else:
-        st.info("Please upload and merge data files to access intervention engine.")
+            st.info("Please upload and merge data files to access intervention engine.")
 
 
     
