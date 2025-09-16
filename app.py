@@ -764,50 +764,50 @@ def main():
             st.info("Please upload and merge data files to access ROI analysis.")
     
     with tab5:
-    st.header("⚡ Automated Intervention Engine")
+        st.header("⚡ Automated Intervention Engine")
 
-    if st.session_state.merged_data is not None:
-        data = st.session_state.merged_data
+        if st.session_state.merged_data is not None:
+            data = st.session_state.merged_data
 
-        # ---------- Priority students ----------
-        high_risk_students = data[data['risk_tier'] == 'HIGH'].copy()
+            # ---------- Priority students ----------
+            high_risk_students = data[data['risk_tier'] == 'HIGH'].copy()
 
-        if not high_risk_students.empty:
+            if not high_risk_students.empty:
             # Optional extra flag
-            high_risk_students['intervention_priority'] = high_risk_students.apply(
-                lambda row: 'CRITICAL' if row.get('days_delinquent', 0) > 180 else 'HIGH', axis=1
-            )
+                high_risk_students['intervention_priority'] = high_risk_students.apply(
+                    lambda row: 'CRITICAL' if row.get('days_delinquent', 0) > 180 else 'HIGH', axis=1
+                )
 
-            st.markdown("### Critical Interventions (Next 24–48 Hours)")
+                st.markdown("### Critical Interventions (Next 24–48 Hours)")
 
-            for _, row in high_risk_students.head(5).iterrows():
-                row_dict = row.to_dict()
-                recommendations = generate_intervention_recommendations(row_dict)
+                for _, row in high_risk_students.head(5).iterrows():
+                    row_dict = row.to_dict()
+                    recommendations = generate_intervention_recommendations(row_dict)
 
-                # Safely get student info with fallbacks
-                first_name = row_dict.get('first_name') or row_dict.get('first_name_nslds') or 'Unknown'
-                last_name  = row_dict.get('last_name')  or row_dict.get('last_name_nslds')  or 'Unknown'
-                major      = row_dict.get('major') or 'Unknown Major'
+                    # Safely get student info with fallbacks
+                    first_name = row_dict.get('first_name') or row_dict.get('first_name_nslds') or 'Unknown'
+                    last_name  = row_dict.get('last_name')  or row_dict.get('last_name_nslds')  or 'Unknown'
+                    major      = row_dict.get('major') or 'Unknown Major'
 
-                with st.expander(f"{first_name} {last_name} - {major}"):
-                    c1, c2 = st.columns([2, 1])
+                    with st.expander(f"{first_name} {last_name} - {major}"):
+                        c1, c2 = st.columns([2, 1])
 
-                    with c1:
-                        st.write(f"**Risk Score:** {float(row_dict.get('risk_score', 0)):.2f}")
-                        st.write(f"**Days Delinquent:** {int(row_dict.get('days_delinquent', 0))}")
-                        st.write(f"**Outstanding Balance:** ${float(row_dict.get('outstanding_balance', 0)):,.0f}")
+                        with c1:
+                            st.write(f"**Risk Score:** {float(row_dict.get('risk_score', 0)):.2f}")
+                            st.write(f"**Days Delinquent:** {int(row_dict.get('days_delinquent', 0))}")
+                            st.write(f"**Outstanding Balance:** ${float(row_dict.get('outstanding_balance', 0)):,.0f}")
 
-                        if 'gpa' in row_dict and pd.notna(row_dict['gpa']):
-                            st.write(f"**GPA:** {row_dict['gpa']}")
-                        if 'academic_standing' in row_dict and pd.notna(row_dict['academic_standing']):
-                            st.write(f"**Academic Standing:** {row_dict['academic_standing']}")
+                            if 'gpa' in row_dict and pd.notna(row_dict['gpa']):
+                                st.write(f"**GPA:** {row_dict['gpa']}")
+                            if 'academic_standing' in row_dict and pd.notna(row_dict['academic_standing']):
+                                st.write(f"**Academic Standing:** {row_dict['academic_standing']}")
 
-                    with c2:
-                        st.write("**Recommended Actions:**")
-                        for rec in recommendations:
-                            st.write(f"• {rec['action']}")
-                            st.write(f"   Timeline: {rec['timeline']}")
-                            st.write(f"   Success Rate: {rec['success_rate']}")
+                        with c2:
+                            st.write("**Recommended Actions:**")
+                            for rec in recommendations:
+                                st.write(f"• {rec['action']}")
+                                st.write(f"   Timeline: {rec['timeline']}")
+                                st.write(f"   Success Rate: {rec['success_rate']}")
 
             # ---------- Render once (outside the loop) ----------
             st.subheader("Automated Workflow Triggers")
