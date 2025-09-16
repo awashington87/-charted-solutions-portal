@@ -763,118 +763,108 @@ def main():
         else:
             st.info("Please upload and merge data files to access ROI analysis.")
     
-    with tab5:
-        st.header("⚡ Automated Intervention Engine")
-        
-        if st.session_state.merged_data is not None:
-            data = st.session_state.merged_data
-            
-            st.subheader("Intervention Priority Queue")
-            
-            # Priority students
-            high_risk_students = data[data['risk_tier'] == 'HIGH'].copy()
-            if not high_risk_students.empty:
-                high_risk_students['intervention_priority'] = high_risk_students.apply(
-                    lambda row: 'CRITICAL' if row['days_delinquent'] > 180 else 'HIGH', axis=1
-                )
-                
-                st.markdown("### Critical Interventions (Next 24-48 Hours)")
-                
-                for _, student in high_risk_students.head(5).iterrows():
-                    recommendations = generate_intervention_recommendations(student.to_dict())
-    
-    # Safely get student info with fallbacks
-    first_name = student.get('first_name') or student.get('first_name_nslds') or 'Unknown'
-    last_name = student.get('last_name') or student.get('last_name_nslds') or 'Unknown'
-    major = student.get('major') or 'Unknown Major'
-    
-    with st.expander(f"{first_name} {last_name} - {major}"):
-        col1, col2 = st.columns([2, 1])
-        
-        with col1:
-            st.write(f"**Risk Score:** {student.get('risk_score', 0):.2f}")
-            st.write(f"**Days Delinquent:** {student.get('days_delinquent', 0)}")
-            st.write(f"**Outstanding Balance:** ${student.get('outstanding_balance', 0):,.0f}")
-            
-            # Only show if data exists
-            if 'gpa' in student and pd.notna(student['gpa']):
-                st.write(f"**GPA:** {student['gpa']}")
-            if 'academic_standing' in student and pd.notna(student['academic_standing']):
-                st.write(f"**Academic Standing:** {student['academic_standing']}")
-        
-        with col2:
-            st.write("**Recommended Actions:**")
-            for rec in recommendations:
-                st.write(f"• {rec['action']}")
-                st.write(f"   Timeline: {rec['timeline']}")
-                st.write(f"   Success Rate: {rec['success_rate']}")
-                
-                # Automated workflow simulation
-                st.subheader("Automated Workflow Triggers")
-                
-                col1, col2 = st.columns(2)
-                
-                with col1:
-                    st.markdown("""
-                    <div class="intervention-card">
-                        <h4>Active Workflows</h4>
-                        <p>📧 <strong>Email Campaign:</strong> 23 students contacted this week</p>
-                        <p>📞 <strong>Phone Outreach:</strong> 12 students scheduled for calls</p>
-                        <p>🎓 <strong>Academic Support:</strong> 8 students referred to advisors</p>
-                        <p>💼 <strong>Career Services:</strong> 15 students connected to job placement</p>
-                    </div>
-                    """, unsafe_allow_html=True)
-                
-                with col2:
-                    st.markdown("""
-                    <div class="intervention-card">
-                        <h4>Success Metrics (This Month)</h4>
-                        <p>✅ <strong>Response Rate:</strong> 68% (above 45% benchmark)</p>
-                        <p>💰 <strong>Payment Plans Setup:</strong> 34 students</p>
-                        <p>📈 <strong>Risk Reduction:</strong> 42 students improved risk tier</p>
-                        <p>🎯 <strong>Default Prevention:</strong> 18 estimated defaults avoided</p>
-                    </div>
-                    """, unsafe_allow_html=True)
-                
-                # Communication templates for high-priority students
-                st.subheader("Generate Targeted Communications")
-                
-                template_choice = st.selectbox(
-                    "Choose Communication Type",
-                    ['predictive_early_warning', 'intervention_priority'],
-                    format_func=lambda x: {
-                        'predictive_early_warning': 'Predictive Early Warning',
-                        'intervention_priority': 'Priority Intervention'
-                    }[x]
-                )
-                
-                if st.button("📧 Generate Communications for High-Risk Students"):
-                    student_list = high_risk_students.head(10).to_dict('records')
-                    
-                    st.success(f"Generated {len(student_list)} personalized communications")
-                    
-                    with st.expander("Preview Generated Communications"):
-                        sample_student = student_list[0] if student_list else {}
-                        template = EMAIL_TEMPLATES[template_choice]
-                        
-                        try:
-                            formatted_subject = template['subject'].format(**sample_student)
-                            formatted_body = template['body'].format(**sample_student)
-                            
-                            st.write("**Sample Email Subject:**")
-                            st.write(formatted_subject)
-                            st.write("**Sample Email Body:**")
-                            st.text_area("", formatted_body, height=300, disabled=True)
-                        except KeyError as e:
-                            st.warning(f"Template requires additional data: {e}")
-    with tab5:
-        st.header("⚡ Automated Intervention Engine")
+with tab5:
+    st.header("⚡ Automated Intervention Engine")
 
     if st.session_state.merged_data is not None:
         data = st.session_state.merged_data
-        # ... all of your tab-5 UI, including the try/except around templates ...
+
+        # ---------- Priority students ----------
+        high_risk_students = data[data['risk_tier'] == 'HIGH'].copy()
+
+        if not high_risk_students.empty:
+            # Optional extra flag
+            high_risk_students['intervention_priority'] = high_risk_students.apply(
+                lambda row: 'CRITICAL' if row.get('days_delinquent', 0) > 180 else 'HIGH', axis=1
+            )
+
+            st.markdown("### Critical Interventions (Next 24–48 Hours)")
+
+            for _, row in high_risk_students.head(5).iterrows():
+                row_dict = row.to_dict()
+                recommendations = generate_intervention_recommendations(row_dict)
+
+                # Safely get student info with fallbacks
+                first_name = row_dict.get('first_name') or row_dict.get('first_name_nslds') or 'Unknown'
+                last_name  = row_dict.get('last_name')  or row_dict.get('last_name_nslds')  or 'Unknown'
+                major      = row_dict.get('major') or 'Unknown Major'
+
+                with st.expander(f"{first_name} {last_name} - {major}"):
+                    c1, c2 = st.columns([2, 1])
+
+                    with c1:
+                        st.write(f"**Risk Score:** {float(row_dict.get('risk_score', 0)):.2f}")
+                        st.write(f"**Days Delinquent:** {int(row_dict.get('days_delinquent', 0))}")
+                        st.write(f"**Outstanding Balance:** ${float(row_dict.get('outstanding_balance', 0)):,.0f}")
+
+                        if 'gpa' in row_dict and pd.notna(row_dict['gpa']):
+                            st.write(f"**GPA:** {row_dict['gpa']}")
+                        if 'academic_standing' in row_dict and pd.notna(row_dict['academic_standing']):
+                            st.write(f"**Academic Standing:** {row_dict['academic_standing']}")
+
+                    with c2:
+                        st.write("**Recommended Actions:**")
+                        for rec in recommendations:
+                            st.write(f"• {rec['action']}")
+                            st.write(f"   Timeline: {rec['timeline']}")
+                            st.write(f"   Success Rate: {rec['success_rate']}")
+
+            # ---------- Render once (outside the loop) ----------
+            st.subheader("Automated Workflow Triggers")
+            c1, c2 = st.columns(2)
+            with c1:
+                st.markdown("""
+                <div class="intervention-card">
+                    <h4>Active Workflows</h4>
+                    <p>📧 <strong>Email Campaign:</strong> 23 students contacted this week</p>
+                    <p>📞 <strong>Phone Outreach:</strong> 12 students scheduled for calls</p>
+                    <p>🎓 <strong>Academic Support:</strong> 8 students referred to advisors</p>
+                    <p>💼 <strong>Career Services:</strong> 15 students connected to job placement</p>
+                </div>
+                """, unsafe_allow_html=True)
+            with c2:
+                st.markdown("""
+                <div class="intervention-card">
+                    <h4>Success Metrics (This Month)</h4>
+                    <p>✅ <strong>Response Rate:</strong> 68% (above 45% benchmark)</p>
+                    <p>💰 <strong>Payment Plans Setup:</strong> 34 students</p>
+                    <p>📈 <strong>Risk Reduction:</strong> 42 students improved risk tier</p>
+                    <p>🎯 <strong>Default Prevention:</strong> 18 estimated defaults avoided</p>
+                </div>
+                """, unsafe_allow_html=True)
+
+            st.subheader("Generate Targeted Communications")
+            template_choice = st.selectbox(
+                "Choose Communication Type",
+                ['predictive_early_warning', 'intervention_priority'],
+                format_func=lambda x: {
+                    'predictive_early_warning': 'Predictive Early Warning',
+                    'intervention_priority': 'Priority Intervention'
+                }[x]
+            )
+
+            if st.button("📧 Generate Communications for High-Risk Students"):
+                student_list = high_risk_students.head(10).to_dict('records')
+                st.success(f"Generated {len(student_list)} personalized communications")
+
+                with st.expander("Preview Generated Communications"):
+                    sample_student = student_list[0] if student_list else {}
+                    template = EMAIL_TEMPLATES[template_choice]
+                    try:
+                        formatted_subject = template['subject'].format(**sample_student)
+                        formatted_body = template['body'].format(**sample_student)
+                        st.write("**Sample Email Subject:**")
+                        st.write(formatted_subject)
+                        st.write("**Sample Email Body:**")
+                        st.text_area("", formatted_body, height=300, disabled=True)
+                    except KeyError as e:
+                        st.warning(f"Template requires additional data: {e}")
+
+        else:
+            st.info("No HIGH risk students found yet. Upload/merge data or adjust sample data to see this queue.")
     else:
         st.info("Please upload and merge data files to access intervention engine.")
+
 
     
     with tab6:
