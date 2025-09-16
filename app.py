@@ -662,7 +662,22 @@ def main():
                     """, unsafe_allow_html=True)
                     
                     # Show early warning students
-                    st.dataframe(early_warning[['student_id', 'first_name', 'last_name', 'major', 'predictive_score', 'gpa', 'academic_standing']])
+                    # Show only columns that actually exist
+                    available_columns = []
+                    desired_columns = ['student_id', 'first_name', 'last_name', 'major', 'predictive_score', 'gpa', 'academic_standing']
+                    
+                    for col in desired_columns:
+                        if col in early_warning.columns:
+                            available_columns.append(col)
+                        elif col == 'first_name' and 'first_name_nslds' in early_warning.columns:
+                            available_columns.append('first_name_nslds')
+                        elif col == 'last_name' and 'last_name_nslds' in early_warning.columns:
+                            available_columns.append('last_name_nslds')
+                    
+                    if available_columns:
+                        st.dataframe(early_warning[available_columns])
+                    else:
+                        st.dataframe(early_warning.head())
             
             # Predictive model performance
             st.subheader("Predictive Model Performance")
