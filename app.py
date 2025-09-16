@@ -131,12 +131,12 @@ def generate_intervention_recommendations(risk_score):
         if score >= 0.8:
             recommendations = [
                 {'action': 'Emergency Financial Counseling', 'timeline': 'Within 24 hours'},
-                {'action': 'Loan Rehabilitation Discussion', 'timeline': 'Within 48 hours'}
+                {'action': 'Forbearance/Deferment Review', 'timeline': 'Within 48 hours'}
             ]
         elif score >= 0.6:
             recommendations = [
                 {'action': 'Financial Planning Session', 'timeline': 'Within 1 week'},
-                {'action': 'Payment Plan Review', 'timeline': 'Within 2 weeks'}
+                {'action': 'Income-Driven Repayment Application', 'timeline': 'Within 2 weeks'}
             ]
         elif score >= 0.4:
             recommendations = [
