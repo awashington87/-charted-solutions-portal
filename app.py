@@ -732,18 +732,14 @@ STU100000,102341234,James,Smith,james.smith@email.com,Business Administration,Ba
 STU100001,987652345,Mary,Johnson,mary.johnson@email.com,Computer Science,Bachelor of Science in Computer Science,Academic Warning,2.45,45,Full-time
 STU100002,456783456,John,Williams,john.williams@email.com,Nursing,Bachelor of Science in Nursing,Good Standing,3.67,75,Full-time
 STU100003,789124567,Patricia,Brown,patricia.brown@email.com,Engineering,Bachelor of Engineering,Good Standing,3.12,90,Full-time
-STU100004,321655678,Robert,Jones,robert.jones@email.com,Psychology,Bachelor of Arts in Psychology,Dean's List,3.85,120,Full-time
-            sample_sis = """Student ID,SSN,First Name,Last Name,Email,Major,Program,Academic Standing,GPA,Credit Hours,Enrollment Status
-STU100000,102341234,James,Smith,james.smith@email.com,Business Administration,Bachelor of Business Administration,Good Standing,3.25,60,Full-time
-STU100001,987652345,Mary,Johnson,mary.johnson@email.com,Computer Science,Bachelor of Science in Computer Science,Academic Warning,2.45,45,Full-time
-STU100002,456783456,John,Williams,john.williams@email.com,Nursing,Bachelor of Science in Nursing,Good Standing,3.67,75,Full-time
-STU100003,789124567,Patricia,Brown,patricia.brown@email.com,Engineering,Bachelor of Engineering,Good Standing,3.12,90,Full-time
-STU100004,321655678,Robert,Jones,robert.jones@email.com,Psychology,Bachelor of Arts in Psychology,Dean's List,3.85,120,Full-time
-STU100005,147256789,Jennifer,Garcia,jennifer.garcia@email.com,Education,Bachelor of Education,Good Standing,3.34,36,Part-time
-STU100006,258367890,Michael,Miller,michael.miller@email.com,Liberal Arts,Bachelor of Arts,Academic Probation,1.89,24,Part-time
-STU100007,369148901,Linda,Davis,linda.davis@email.com,Criminal Justice,Bachelor of Science in Criminal Justice,Good Standing,3.01,48,Full-time
-STU100008,741859012,William,Rodriguez,william.rodriguez@email.com,Biology,Bachelor of Science in Biology,Academic Warning,2.23,72,Full-time
-STU100009,852960123,Elizabeth,Martinez,elizabeth.martinez@email.com,Marketing,Bachelor of Business in Marketing,Good Standing,3.56,84,Full-time"""
+STU100004,321655678,Robert,Jones,robert.jones@email.com,Business Administration,Bachelor of Business Administration,Dean's List,3.85,120,Full-time
+STU100005,147256789,Jennifer,Garcia,jennifer.garcia@email.com,Computer Science,Bachelor of Science in Computer Science,Good Standing,3.34,36,Part-time
+STU100006,258367890,Michael,Miller,michael.miller@email.com,Nursing,Bachelor of Science in Nursing,Academic Probation,1.89,24,Part-time
+STU100007,369148901,Linda,Davis,linda.davis@email.com,Engineering,Bachelor of Engineering,Good Standing,3.01,48,Full-time
+STU100008,741859012,William,Rodriguez,william.rodriguez@email.com,Business Administration,Bachelor of Business Administration,Academic Warning,2.23,72,Full-time
+STU100009,852960123,Elizabeth,Martinez,elizabeth.martinez@email.com,Computer Science,Bachelor of Science in Computer Science,Good Standing,3.56,84,Full-time
+STU100010,963071234,David,Hernandez,david.hernandez@email.com,Nursing,Bachelor of Science in Nursing,Good Standing,3.78,96,Full-time
+STU100011,174182345,Barbara,Lopez,barbara.lopez@email.com,Engineering,Bachelor of Engineering,Dean's List,3.91,105,Full-time"""
             
             st.download_button(
                 "Download Sample SIS Data",
