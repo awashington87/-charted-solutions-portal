@@ -429,7 +429,7 @@ def main():
         "🎯 Predictive Analytics", 
         "📊 Program ROI Analysis",
         "⚡ Intervention Engine",
-        "📈 Benchmarking"
+        "📋 Sample Data"
     ])
     
     with tab1:
@@ -864,134 +864,105 @@ def main():
             st.info("Please upload and merge data files to access intervention engine.")
     
     with tab6:
-        st.header("📈 Institutional Benchmarking")
-        
-        benchmark_data = generate_benchmark_data()
-        
-        st.subheader("Performance Comparison Dashboard")
-        
-        # Benchmark comparison
-        metrics = ['cdr_rate', 'intervention_success', 'early_warning_usage', 'avg_risk_score']
-        metric_labels = ['CDR Rate (%)', 'Intervention Success (%)', 'Early Warning Usage (%)', 'Avg Risk Score']
-        
-        for i, (metric, label) in enumerate(zip(metrics, metric_labels)):
-            col1, col2, col3, col4 = st.columns(4)
-            
-            with col1:
-                st.metric(
-                    f"{label} - Your Institution", 
-                    f"{benchmark_data['Your Institution'][metric]:.1f}{'%' if 'rate' in metric or 'success' in metric or 'usage' in metric else ''}"
-                )
-            with col2:
-                peer_val = benchmark_data['Peer Average'][metric]
-                your_val = benchmark_data['Your Institution'][metric]
-                delta = your_val - peer_val if 'risk_score' not in metric and 'cdr_rate' not in metric else peer_val - your_val
-                st.metric(
-                    f"{label} - Peer Average", 
-                    f"{peer_val:.1f}{'%' if 'rate' in metric or 'success' in metric or 'usage' in metric else ''}",
-                    f"{delta:+.1f}{'%' if 'rate' in metric or 'success' in metric or 'usage' in metric else ''}"
-                )
-            with col3:
-                st.metric(
-                    f"{label} - Top Quartile", 
-                    f"{benchmark_data['Top Quartile'][metric]:.1f}{'%' if 'rate' in metric or 'success' in metric or 'usage' in metric else ''}"
-                )
-            with col4:
-                st.metric(
-                    f"{label} - National Average", 
-                    f"{benchmark_data['National Average'][metric]:.1f}{'%' if 'rate' in metric or 'success' in metric or 'usage' in metric else ''}"
-                )
-        
-        # Benchmark visualization
-        st.subheader("Competitive Position Analysis")
-        
-        comparison_df = pd.DataFrame(benchmark_data).T
-        
-        fig = go.Figure()
-        
-        categories = ['CDR Rate (Lower is Better)', 'Intervention Success', 'Early Warning Usage', 'Risk Management']
-        
-        for institution in comparison_df.index:
-            fig.add_trace(go.Scatterpolar(
-                r=[
-                    100 - comparison_df.loc[institution, 'cdr_rate'] * 5,  # Invert and scale CDR
-                    comparison_df.loc[institution, 'intervention_success'],
-                    comparison_df.loc[institution, 'early_warning_usage'],
-                    100 - comparison_df.loc[institution, 'avg_risk_score'] * 100  # Invert risk score
-                ],
-                theta=categories,
-                fill='toself',
-                name=institution,
-                line_color={'Your Institution': '#1e3a5f', 'Peer Average': '#ffc107', 
-                           'Top Quartile': '#28a745', 'National Average': '#dc3545'}.get(institution, '#6c757d')
-            ))
-        
-        fig.update_layout(
-            polar=dict(
-                radialaxis=dict(
-                    visible=True,
-                    range=[0, 100]
-                )),
-            showlegend=True,
-            title="Institutional Performance Comparison"
-        )
-        
-        st.plotly_chart(fig, use_container_width=True)
-        
-        # Performance insights
-        st.subheader("Competitive Analysis & Recommendations")
-        
-        your_data = benchmark_data['Your Institution']
-        peer_data = benchmark_data['Peer Average']
-        
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            st.markdown("### Strengths")
-            strengths = []
-            if your_data['cdr_rate'] < peer_data['cdr_rate']:
-                strengths.append("✅ CDR below peer average")
-            if your_data['intervention_success'] > peer_data['intervention_success']:
-                strengths.append("✅ Higher intervention success rate")
-            if your_data['early_warning_usage'] > peer_data['early_warning_usage']:
-                strengths.append("✅ Better early warning system utilization")
-            
-            for strength in strengths[:3]:
-                st.write(strength)
-        
-        with col2:
-            st.markdown("### Improvement Opportunities")
-            opportunities = []
-            if your_data['cdr_rate'] > peer_data['cdr_rate']:
-                opportunities.append("🎯 Reduce CDR through enhanced interventions")
-            if your_data['intervention_success'] < peer_data['intervention_success']:
-                opportunities.append("🎯 Improve intervention effectiveness")
-            if your_data['early_warning_usage'] < peer_data['early_warning_usage']:
-                opportunities.append("🎯 Increase early warning system adoption")
-            
-            for opportunity in opportunities[:3]:
-                st.write(opportunity)
-        
-        # ROI calculation
-        st.subheader("Investment Impact Projection")
+        st.header("📋 Sample Data for Testing")
         
         st.markdown("""
-        <div class="benchmark-card">
-            <h4>Platform ROI Analysis</h4>
-            <p><strong>Current Performance Gap:</strong> Your CDR is {:.1f} percentage points {} peer average</p>
-            <p><strong>Improvement Potential:</strong> Reaching top quartile performance could prevent {} defaults annually</p>
-            <p><strong>Financial Impact:</strong> Estimated savings of ${:,.0f} per year through improved outcomes</p>
-            <p><strong>Platform Investment:</strong> ${:,.0f} annually (Professional Plan)</p>
-            <p><strong>Net ROI:</strong> {:,.0f}% return on investment</p>
-        </div>
-        """.format(
-            abs(your_data['cdr_rate'] - peer_data['cdr_rate']),
-            'above' if your_data['cdr_rate'] > peer_data['cdr_rate'] else 'below',
-            int((your_data['cdr_rate'] - benchmark_data['Top Quartile']['cdr_rate']) * 10),
-            (your_data['cdr_rate'] - benchmark_data['Top Quartile']['cdr_rate']) * 10 * 15000,
-            60000,  # Professional plan cost
-            ((your_data['cdr_rate'] - benchmark_data['Top Quartile']['cdr_rate']) * 10 * 15000 / 60000 - 1) * 100
-        ), unsafe_allow_html=True)
+        ### Test the Platform with Sample Data
+        
+        Download these sample files to explore all the advanced analytics features without needing your own data.
+        
+        **What you'll see after uploading:**
+        - Predictive risk scoring for 10 students
+        - CDR impact projections
+        - Program ROI analysis
+        - Automated intervention recommendations
+        - Institutional benchmarking
+        """)
+        
+        sample_col1, sample_col2 = st.columns(2)
+        
+        with sample_col1:
+            st.markdown("#### Sample NSLDS Data")
+            st.write("Delinquent borrower report with 10 student records")
+            
+            sample_nslds = """Borrower SSN,Borrower First Name,Borrower Last Name,E-mail,Days Delinquent,OPB,Loan Type
+102341234,James,Smith,james.smith@email.com,45,15234,Subsidized
+987652345,Mary,Johnson,mary.johnson@email.com,120,28750,Unsubsidized
+456783456,John,Williams,john.williams@email.com,30,8500,PLUS
+789124567,Patricia,Brown,patricia.brown@email.com,200,45200,Subsidized
+321655678,Robert,Jones,robert.jones@email.com,60,18000,Unsubsidized
+147256789,Jennifer,Garcia,jennifer.garcia@email.com,15,9500,Perkins
+258367890,Michael,Miller,michael.miller@email.com,180,38000,Grad PLUS
+369148901,Linda,Davis,linda.davis@email.com,75,22500,Subsidized
+741859012,William,Rodriguez,william.rodriguez@email.com,240,52000,Unsubsidized
+852960123,Elizabeth,Martinez,elizabeth.martinez@email.com,90,31200,PLUS"""
+            
+            st.download_button(
+                "📥 Download Sample NSLDS Data",
+                sample_nslds,
+                "sample_nslds.csv",
+                "text/csv",
+                use_container_width=True
+            )
+        
+        with sample_col2:
+            st.markdown("#### Sample SIS Data")
+            st.write("Student information with academic data for predictive analytics")
+            
+            sample_sis = """Student ID,SSN,First Name,Last Name,Email,Major,Program,Academic Standing,GPA,Credit Hours,Enrollment Status
+STU100000,102341234,James,Smith,james.smith@email.com,Business Administration,Bachelor of Business Administration,Good Standing,3.25,60,Full-time
+STU100001,987652345,Mary,Johnson,mary.johnson@email.com,Computer Science,Bachelor of Science in Computer Science,Academic Warning,2.45,45,Full-time
+STU100002,456783456,John,Williams,john.williams@email.com,Nursing,Bachelor of Science in Nursing,Good Standing,3.67,75,Full-time
+STU100003,789124567,Patricia,Brown,patricia.brown@email.com,Engineering,Bachelor of Engineering,Good Standing,3.12,90,Full-time
+STU100004,321655678,Robert,Jones,robert.jones@email.com,Psychology,Bachelor of Arts in Psychology,Dean's List,3.85,120,Full-time
+STU100005,147256789,Jennifer,Garcia,jennifer.garcia@email.com,Education,Bachelor of Education,Good Standing,3.34,36,Part-time
+STU100006,258367890,Michael,Miller,michael.miller@email.com,Liberal Arts,Bachelor of Arts,Academic Probation,1.89,24,Part-time
+STU100007,369148901,Linda,Davis,linda.davis@email.com,Criminal Justice,Bachelor of Science in Criminal Justice,Good Standing,3.01,48,Full-time
+STU100008,741859012,William,Rodriguez,william.rodriguez@email.com,Biology,Bachelor of Science in Biology,Academic Warning,2.23,72,Full-time
+STU100009,852960123,Elizabeth,Martinez,elizabeth.martinez@email.com,Marketing,Bachelor of Business in Marketing,Good Standing,3.56,84,Full-time"""
+            
+            st.download_button(
+                "📥 Download Sample SIS Data",
+                sample_sis,
+                "sample_sis.csv",
+                "text/csv",
+                use_container_width=True
+            )
+        
+        st.markdown("---")
+        
+        st.markdown("### 🚀 Quick Start Instructions")
+        
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            st.markdown("""
+            **Step 1: Download**
+            - Download both sample files above
+            - Save them to your computer
+            """)
+        
+        with col2:
+            st.markdown("""
+            **Step 2: Upload**
+            - Go to "Upload Data" tab
+            - Upload both CSV files
+            - Click process buttons
+            """)
+        
+        with col3:
+            st.markdown("""
+            **Step 3: Explore**
+            - Merge datasets
+            - Explore all analytics tabs
+            - See predictive features
+            """)
+        
+        st.success("💡 **Tip:** The sample data includes students with varying risk levels and academic standings to demonstrate the full range of platform capabilities.")
+
+    # Remove the expandable section at the bottom since we now have a dedicated tab
+    # with st.expander("📋 Sample Data for Testing"):
+    #     ... (remove this section)
 
 if __name__ == "__main__":
     main()
