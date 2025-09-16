@@ -120,7 +120,7 @@ The application can be customized with your institution's:
 ## 📞 Support & Contact
 
 ### ChartED Solutions
-- **Email:** apryll@visitcharted.com
+- **Email:** info@visitcharted.com
 - **Website:** visitcharted.com
 - **Consultation:** Available for implementation and training
 
