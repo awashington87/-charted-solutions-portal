@@ -783,24 +783,34 @@ def main():
                 for _, student in high_risk_students.head(5).iterrows():
                     recommendations = generate_intervention_recommendations(student.to_dict())
                     
-                    with st.expander(f"{student['first_name']} {student['last_name']} - {student.get('major', 'Unknown Major')}"):
-                        col1, col2 = st.columns([2, 1])
-                        
-                        with col1:
-                            st.write(f"**Risk Score:** {student['risk_score']:.2f}")
-                            st.write(f"**Days Delinquent:** {student['days_delinquent']}")
-                            st.write(f"**Outstanding Balance:** ${student['outstanding_balance']:,.0f}")
-                            if 'gpa' in student:
-                                st.write(f"**GPA:** {student['gpa']}")
-                            if 'academic_standing' in student:
-                                st.write(f"**Academic Standing:** {student['academic_standing']}")
-                        
-                        with col2:
-                            st.write("**Recommended Actions:**")
-                            for rec in recommendations:
-                                st.write(f"🔸 {rec['action']}")
-                                st.write(f"   Timeline: {rec['timeline']}")
-                                st.write(f"   Success Rate: {rec['success_rate']}")
+                    for _, student in high_risk_students.head(5).iterrows():
+    recommendations = generate_intervention_recommendations(student.to_dict())
+    
+    # Safely get student info with fallbacks
+    first_name = student.get('first_name') or student.get('first_name_nslds') or 'Unknown'
+    last_name = student.get('last_name') or student.get('last_name_nslds') or 'Unknown'
+    major = student.get('major') or 'Unknown Major'
+    
+    with st.expander(f"{first_name} {last_name} - {major}"):
+        col1, col2 = st.columns([2, 1])
+        
+        with col1:
+            st.write(f"**Risk Score:** {student.get('risk_score', 0):.2f}")
+            st.write(f"**Days Delinquent:** {student.get('days_delinquent', 0)}")
+            st.write(f"**Outstanding Balance:** ${student.get('outstanding_balance', 0):,.0f}")
+            
+            # Only show if data exists
+            if 'gpa' in student and pd.notna(student['gpa']):
+                st.write(f"**GPA:** {student['gpa']}")
+            if 'academic_standing' in student and pd.notna(student['academic_standing']):
+                st.write(f"**Academic Standing:** {student['academic_standing']}")
+        
+        with col2:
+            st.write("**Recommended Actions:**")
+            for rec in recommendations:
+                st.write(f"• {rec['action']}")
+                st.write(f"   Timeline: {rec['timeline']}")
+                st.write(f"   Success Rate: {rec['success_rate']}")
                 
                 # Automated workflow simulation
                 st.subheader("Automated Workflow Triggers")
