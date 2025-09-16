@@ -867,8 +867,15 @@ def main():
                             st.text_area("", formatted_body, height=300, disabled=True)
                         except KeyError as e:
                             st.warning(f"Template requires additional data: {e}")
-        else:
-            st.info("Please upload and merge data files to access intervention engine.")
+    with tab5:
+        st.header("⚡ Automated Intervention Engine")
+
+    if st.session_state.merged_data is not None:
+        data = st.session_state.merged_data
+        # ... all of your tab-5 UI, including the try/except around templates ...
+    else:
+        st.info("Please upload and merge data files to access intervention engine.")
+
     
     with tab6:
         st.header("📋 Sample Data for Testing")
