@@ -500,10 +500,14 @@ def main():
                     )
                     st.plotly_chart(fig2, use_container_width=True)
                 
-                # Show students identified by predictive model but missed by traditional methods
-                predictive_high = set(data[data['predictive_tier'] == 'HIGH']['student_id'])
-                current_high = set(data[data['risk_tier'] == 'HIGH']['student_id'])
-                early_warning_students = predictive_high - current_high
+               
+                # Only show predictive comparison if predictive data exists
+                if 'predictive_tier' in data.columns and 'predictive_score' in data.columns:
+                    predictive_high = set(data[data['predictive_tier'] == 'HIGH']['student_id'])
+                    current_high = set(data[data['risk_tier'] == 'HIGH']['student_id'])
+                    early_warning_students = predictive_high - current_high
+                else:
+                    early_warning_students = set()
                 
                 if early_warning_students:
                     st.markdown("### 🚨 Early Warning Alerts")
