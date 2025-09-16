@@ -1,10 +1,8 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-import plotly.graph_objects as go
 from datetime import datetime
 import random
-import io
 
 # Page configuration
 st.set_page_config(
@@ -13,7 +11,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# Custom CSS for professional look
+# Custom CSS
 st.markdown("""
 <style>
     .main-header {
@@ -31,9 +29,6 @@ st.markdown("""
         border-left: 4px solid #1e3a5f;
         margin-bottom: 1rem;
     }
-    .risk-high { color: #dc3545; font-weight: bold; }
-    .risk-medium { color: #ffc107; font-weight: bold; }
-    .risk-low { color: #28a745; font-weight: bold; }
     .intervention-card {
         background: #f8f9fa;
         padding: 1rem;
@@ -61,23 +56,38 @@ if 'merged_data' not in st.session_state:
 
 def calculate_risk_score(days_delinquent):
     """Calculate risk score based on delinquency days"""
-    if pd.isna(days_delinquent) or days_delinquent < 30:
-        return random.uniform(0, 0.3)
-    elif days_delinquent < 90:
-        return random.uniform(0.3, 0.6)
-    elif days_delinquent < 180:
-        return random.uniform(0.6, 0.8)
-    else:
-        return random.uniform(0.8, 1.0)
+    try:
+        days = float(days_delinquent) if pd.notna(days_delinquent) else 0
+        if days < 30:
+            return random.uniform(0, 0.3)
+        elif days < 90:
+            return random.uniform(0.3, 0.6)
+        elif days < 180:
+            return random.uniform(0.6, 0.8)
+        else:
+            return random.uniform(0.8, 1.0)
+    except:
+        return 0.5
 
 def get_risk_tier(score):
     """Convert risk score to tier"""
-    if score >= 0.7:
-        return 'HIGH'
-    elif score >= 0.4:
+    try:
+        score = float(score) if pd.notna(score) else 0
+        if score >= 0.7:
+            return 'HIGH'
+        elif score >= 0.4:
+            return 'MEDIUM'
+        else:
+            return 'LOW'
+    except:
         return 'MEDIUM'
-    else:
-        return 'LOW'
+
+def safe_get_value(row, possible_columns, default='Unknown'):
+    """Safely get a value from a row using multiple possible column names"""
+    for col in possible_columns:
+        if col in row.index and pd.notna(row[col]):
+            return str(row[col])
+    return default
 
 def calculate_cdr_projection(data):
     """Calculate projected CDR based on current risk levels"""
@@ -91,9 +101,9 @@ def calculate_cdr_projection(data):
     high_risk_count = len(data[data['risk_tier'] == 'HIGH'])
     medium_risk_count = len(data[data['risk_tier'] == 'MEDIUM'])
     
-    # Simulate default probabilities
-    high_risk_default_rate = 0.65
-    medium_risk_default_rate = 0.25
+    # Conservative default rate estimates
+    high_risk_default_rate = 0.45
+    medium_risk_default_rate = 0.20
     low_risk_default_rate = 0.05
     
     projected_defaults = (
@@ -104,61 +114,56 @@ def calculate_cdr_projection(data):
     
     current_cdr = (projected_defaults / total_borrowers) * 100
     
-    # Calculate improved CDR with intervention
-    intervention_success_rate = 0.4  # 40% success rate for interventions
+    # Calculate improved CDR with intervention (30% improvement)
+    intervention_success_rate = 0.3
     improved_defaults = projected_defaults - (high_risk_count * high_risk_default_rate * intervention_success_rate)
     improved_cdr = (improved_defaults / total_borrowers) * 100
     
     return current_cdr, improved_cdr, current_cdr - improved_cdr
 
-def generate_intervention_recommendations(risk_score, days_delinquent):
-    """Generate intervention recommendations based on risk level"""
+def generate_intervention_recommendations(risk_score):
+    """Generate intervention recommendations based on risk score"""
     recommendations = []
     
-    if risk_score >= 0.8:
-        recommendations.append({
-            'action': 'Emergency Financial Counseling',
-            'timeline': 'Within 24 hours',
-            'priority': 'CRITICAL'
-        })
-        recommendations.append({
-            'action': 'Loan Rehabilitation Setup',
-            'timeline': 'Within 48 hours',
-            'priority': 'CRITICAL'
-        })
-    elif risk_score >= 0.6:
-        recommendations.append({
-            'action': 'Personalized Financial Planning',
-            'timeline': 'Within 1 week',
-            'priority': 'HIGH'
-        })
-        recommendations.append({
-            'action': 'Income-Driven Repayment Setup',
-            'timeline': 'Within 2 weeks',
-            'priority': 'HIGH'
-        })
-    elif risk_score >= 0.4:
-        recommendations.append({
-            'action': 'Financial Wellness Workshop',
-            'timeline': 'Within 2 weeks',
-            'priority': 'MEDIUM'
-        })
-        recommendations.append({
-            'action': 'Career Services Referral',
-            'timeline': 'Within 3 weeks',
-            'priority': 'MEDIUM'
-        })
+    try:
+        score = float(risk_score) if pd.notna(risk_score) else 0
+        
+        if score >= 0.8:
+            recommendations = [
+                {'action': 'Emergency Financial Counseling', 'timeline': 'Within 24 hours'},
+                {'action': 'Loan Rehabilitation Discussion', 'timeline': 'Within 48 hours'}
+            ]
+        elif score >= 0.6:
+            recommendations = [
+                {'action': 'Financial Planning Session', 'timeline': 'Within 1 week'},
+                {'action': 'Payment Plan Review', 'timeline': 'Within 2 weeks'}
+            ]
+        elif score >= 0.4:
+            recommendations = [
+                {'action': 'Financial Wellness Workshop', 'timeline': 'Within 2 weeks'},
+                {'action': 'Career Services Referral', 'timeline': 'Within 3 weeks'}
+            ]
+        else:
+            recommendations = [
+                {'action': 'Preventive Check-in', 'timeline': 'Within 1 month'}
+            ]
+    except:
+        recommendations = [
+            {'action': 'General Financial Review', 'timeline': 'Within 2 weeks'}
+        ]
     
     return recommendations
 
 def process_nslds_file(uploaded_file):
     """Process NSLDS file and add risk calculations"""
     try:
+        # Read file
         if uploaded_file.name.endswith('.csv'):
             df = pd.read_csv(uploaded_file)
         else:
             df = pd.read_excel(uploaded_file)
         
+        # Standardize column names
         column_mapping = {
             'Borrower SSN': 'ssn',
             'Borrower First Name': 'first_name', 
@@ -169,22 +174,27 @@ def process_nslds_file(uploaded_file):
             'Loan Type': 'loan_type'
         }
         
+        # Apply column mapping
         for old_name, new_name in column_mapping.items():
             if old_name in df.columns:
                 df = df.rename(columns={old_name: new_name})
         
+        # Create student IDs if missing
         if 'student_id' not in df.columns:
             df['student_id'] = [f'STU{i+1000:06d}' for i in range(len(df))]
         
-        df['days_delinquent'] = df.get('days_delinquent', 0).fillna(0)
-        df['outstanding_balance'] = df.get('outstanding_balance', 0).fillna(0)
+        # Clean and validate data
+        df['days_delinquent'] = pd.to_numeric(df.get('days_delinquent', 0), errors='coerce').fillna(0)
+        df['outstanding_balance'] = pd.to_numeric(df.get('outstanding_balance', 0), errors='coerce').fillna(0)
         
+        # Calculate risk scores
         df['risk_score'] = df['days_delinquent'].apply(calculate_risk_score)
         df['risk_tier'] = df['risk_score'].apply(get_risk_tier)
         
         return df, None
+        
     except Exception as e:
-        return None, str(e)
+        return None, f"Error processing NSLDS file: {str(e)}"
 
 def process_sis_file(uploaded_file):
     """Process SIS file"""
@@ -194,6 +204,7 @@ def process_sis_file(uploaded_file):
         else:
             df = pd.read_excel(uploaded_file)
         
+        # Standardize column names
         column_mapping = {
             'Student ID': 'student_id',
             'SSN': 'ssn',
@@ -212,47 +223,57 @@ def process_sis_file(uploaded_file):
                 df = df.rename(columns={old_name: new_name})
         
         return df, None
+        
     except Exception as e:
-        return None, str(e)
+        return None, f"Error processing SIS file: {str(e)}"
 
 def merge_data(nslds_df, sis_df):
-    """Merge NSLDS and SIS data"""
+    """Merge NSLDS and SIS data safely"""
     try:
+        # Determine merge key
         if 'ssn' in nslds_df.columns and 'ssn' in sis_df.columns:
-            merged = pd.merge(nslds_df, sis_df, on='ssn', how='inner', suffixes=('_nslds', '_sis'))
+            merged = pd.merge(nslds_df, sis_df, on='ssn', how='inner', suffixes=('', '_sis'))
         elif 'student_id' in nslds_df.columns and 'student_id' in sis_df.columns:
-            merged = pd.merge(nslds_df, sis_df, on='student_id', how='inner', suffixes=('_nslds', '_sis'))
+            merged = pd.merge(nslds_df, sis_df, on='student_id', how='inner', suffixes=('', '_sis'))
         else:
-            return None, "No common identifier found"
+            return None, "No common identifier found (SSN or Student ID)"
         
-        # Clean up column names - use non-suffixed versions where possible
-        if 'first_name_nslds' in merged.columns and 'first_name' not in merged.columns:
-            merged['first_name'] = merged['first_name_nslds']
-        if 'last_name_nslds' in merged.columns and 'last_name' not in merged.columns:
-            merged['last_name'] = merged['last_name_nslds']
-        if 'email_nslds' in merged.columns and 'email' not in merged.columns:
-            merged['email'] = merged['email_nslds']
+        # Clean up duplicate columns - prefer original names
+        columns_to_clean = ['first_name', 'last_name', 'email']
+        for col in columns_to_clean:
+            if f'{col}_sis' in merged.columns and col in merged.columns:
+                # Fill missing values from SIS data
+                merged[col] = merged[col].fillna(merged[f'{col}_sis'])
         
         return merged, None
+        
     except Exception as e:
-        return None, str(e)
+        return None, f"Error merging data: {str(e)}"
 
 def analyze_by_major(data):
     """Create analytics by academic major"""
-    if data is None or 'major' not in data.columns:
+    try:
+        if data is None or data.empty or 'major' not in data.columns:
+            return None
+        
+        # Group by major and calculate statistics
+        analysis = data.groupby('major').agg({
+            'risk_score': ['mean', 'count'],
+            'outstanding_balance': ['mean', 'sum'], 
+            'days_delinquent': 'mean'
+        }).round(2)
+        
+        # Flatten column names
+        analysis.columns = ['avg_risk', 'student_count', 'avg_balance', 'total_balance', 'avg_delinquent_days']
+        analysis = analysis.reset_index()
+        
+        # Add risk tier classification
+        analysis['risk_tier'] = analysis['avg_risk'].apply(get_risk_tier)
+        
+        return analysis.sort_values('avg_risk', ascending=False)
+        
+    except Exception as e:
         return None
-    
-    analysis = data.groupby('major').agg({
-        'risk_score': ['mean', 'count'],
-        'outstanding_balance': ['mean', 'sum'], 
-        'days_delinquent': 'mean'
-    }).round(2)
-    
-    analysis.columns = ['avg_risk', 'student_count', 'avg_balance', 'total_balance', 'avg_delinquent_days']
-    analysis = analysis.reset_index()
-    analysis['risk_tier'] = analysis['avg_risk'].apply(get_risk_tier)
-    
-    return analysis.sort_values('avg_risk', ascending=False)
 
 # Email templates
 EMAIL_TEMPLATES = {
@@ -260,48 +281,41 @@ EMAIL_TEMPLATES = {
         'subject': 'Proactive Financial Support Available',
         'body': '''Dear {first_name} {last_name},
 
-Our analytics indicate you may benefit from proactive financial planning support. We want to connect you with resources to ensure your continued success.
+We want to connect you with financial planning resources to support your continued success.
 
-Your Current Status:
+Current Information:
 - Academic Program: {major}
 - Outstanding Balance: ${outstanding_balance:,.2f}
 
-We offer several support options:
+Available Support:
 - Financial planning consultation
-- Income-driven repayment plans
+- Repayment plan options
 - Career services connection
 
-Please contact us to discuss:
-Phone: (555) 123-4567
+Contact us: (555) 123-4567
 Email: finaid@yourschool.edu
 
-Best regards,
-Financial Aid Office
-'''
+Financial Aid Office'''
     },
     'urgent_intervention': {
-        'subject': 'Important: Immediate Financial Support Available',
+        'subject': 'Important Financial Support Available',
         'body': '''Dear {first_name} {last_name},
 
-We're reaching out because immediate financial support resources are available that could significantly help your situation.
+Immediate financial support resources are available to help your situation.
 
-Current Status:
+Account Status:
 - Outstanding Balance: ${outstanding_balance:,.2f}
 - Days Past Due: {days_delinquent}
 
-Immediate actions available:
+Immediate Options:
 - Emergency financial counseling
 - Payment plan restructuring
-- Income-driven repayment options
+- Income-driven repayment
 
 Please contact us within 48 hours:
 Phone: (555) 123-4567
-Email: finaid@yourschool.edu
 
-We're here to help.
-
-Financial Aid Office
-'''
+Financial Aid Office'''
     }
 }
 
@@ -310,25 +324,25 @@ def main():
     st.markdown("""
     <div class="main-header">
         <h1>ChartED Solutions</h1>
-        <h2>Advanced Student Loan Risk Management Platform</h2>
-        <p>Predictive analytics and automated interventions for financial aid success</p>
+        <h2>Student Loan Risk Management Platform</h2>
+        <p>Advanced analytics and intervention tools for financial aid professionals</p>
     </div>
     """, unsafe_allow_html=True)
     
     # Sidebar
     with st.sidebar:
-        st.markdown("### Features")
-        st.write("📈 Predictive Risk Analytics")
-        st.write("🎯 CDR Impact Modeling")
-        st.write("⚡ Automated Interventions")
-        st.write("📊 Program Performance Analysis")
-        st.write("📧 FERPA-Compliant Communications")
+        st.markdown("### Platform Features")
+        st.write("📈 Risk Analytics")
+        st.write("🎯 CDR Projections")
+        st.write("⚡ Intervention Tools")
+        st.write("📊 Program Analysis")
+        st.write("📧 Communication Templates")
         
         st.markdown("### Contact")
         st.write("📧 support@chartedsolutions.com")
         st.write("🌐 chartedsolutions.com")
     
-    # Main tabs
+    # Navigation tabs
     tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
         "🏠 Dashboard", 
         "📁 Upload Data", 
@@ -344,81 +358,83 @@ def main():
         if st.session_state.merged_data is not None:
             data = st.session_state.merged_data
             
-            # Calculate CDR projections
+            # Calculate metrics
             current_cdr, improved_cdr, cdr_improvement = calculate_cdr_projection(data)
             
             st.subheader("Key Performance Indicators")
             
-            # Key metrics
+            # Display metrics
             col1, col2, col3, col4 = st.columns(4)
             
             with col1:
                 st.metric("Total Students", len(data))
             with col2:
-                high_risk = len(data[data['risk_tier'] == 'HIGH'])
-                st.metric("High Risk Students", high_risk)
+                high_risk_count = len(data[data['risk_tier'] == 'HIGH'])
+                st.metric("High Risk Students", high_risk_count)
             with col3:
                 st.metric("Projected CDR", f"{current_cdr:.1f}%")
             with col4:
                 st.metric("CDR with Intervention", f"{improved_cdr:.1f}%", f"-{cdr_improvement:.1f}%")
             
-            # Risk distribution
-            st.subheader("Current Risk Distribution")
+            # Risk distribution chart
+            st.subheader("Risk Distribution")
             risk_counts = data['risk_tier'].value_counts()
-            fig = px.pie(
-                values=risk_counts.values, 
-                names=risk_counts.index,
-                title="Students by Risk Level",
-                color_discrete_map={'HIGH': '#dc3545', 'MEDIUM': '#ffc107', 'LOW': '#28a745'}
-            )
-            st.plotly_chart(fig, use_container_width=True)
+            
+            if not risk_counts.empty:
+                fig = px.pie(
+                    values=risk_counts.values, 
+                    names=risk_counts.index,
+                    title="Students by Risk Level",
+                    color_discrete_map={'HIGH': '#dc3545', 'MEDIUM': '#ffc107', 'LOW': '#28a745'}
+                )
+                st.plotly_chart(fig, use_container_width=True)
             
             # High-risk alerts
-            high_risk_students = data[data['risk_tier'] == 'HIGH']
-            if not high_risk_students.empty:
-                st.markdown("### High-Risk Student Alerts")
+            if high_risk_count > 0:
                 st.markdown(f"""
                 <div class="alert-card">
-                    <h4>{len(high_risk_students)} Students Require Immediate Attention</h4>
-                    <p>These students have high risk scores and need intervention within the next 1-2 weeks.</p>
+                    <h4>High-Risk Student Alert</h4>
+                    <p>{high_risk_count} students require immediate attention and intervention.</p>
                 </div>
                 """, unsafe_allow_html=True)
             
-            # Financial impact
+            # Financial impact summary
             st.subheader("Financial Impact Analysis")
             col1, col2 = st.columns(2)
             
             with col1:
-                total_at_risk = data['outstanding_balance'].sum()
-                st.metric("Total Portfolio at Risk", f"${total_at_risk:,.0f}")
+                total_portfolio = data['outstanding_balance'].sum()
+                st.metric("Total Portfolio at Risk", f"${total_portfolio:,.0f}")
                 
-                potential_defaults = len(high_risk_students) * 0.65
+                potential_defaults = high_risk_count * 0.45
                 default_cost = potential_defaults * 15000
                 st.metric("Potential Default Cost", f"${default_cost:,.0f}")
             
             with col2:
-                intervention_cost = len(high_risk_students) * 200
-                potential_savings = default_cost * 0.4 - intervention_cost
+                intervention_cost = high_risk_count * 200
+                potential_savings = default_cost * 0.3 - intervention_cost
                 st.metric("Intervention Investment", f"${intervention_cost:,.0f}")
-                st.metric("Potential Net Savings", f"${potential_savings:,.0f}")
+                if potential_savings > 0:
+                    st.metric("Potential Net Savings", f"${potential_savings:,.0f}")
         
         else:
+            # Welcome screen
             st.subheader("Welcome to ChartED Solutions")
             
             col1, col2, col3 = st.columns(3)
             with col1:
                 st.markdown("""
                 <div class="metric-card">
-                    <h3>Predictive Analytics</h3>
-                    <p>Identify at-risk students before they become delinquent using advanced risk modeling.</p>
+                    <h3>Risk Analytics</h3>
+                    <p>Advanced scoring to identify at-risk students before defaults occur.</p>
                 </div>
                 """, unsafe_allow_html=True)
             
             with col2:
                 st.markdown("""
                 <div class="metric-card">
-                    <h3>Automated Interventions</h3>
-                    <p>Generate targeted action plans and communications based on individual risk profiles.</p>
+                    <h3>Intervention Tools</h3>
+                    <p>Automated recommendations and communication templates for student outreach.</p>
                 </div>
                 """, unsafe_allow_html=True)
             
@@ -426,7 +442,7 @@ def main():
                 st.markdown("""
                 <div class="metric-card">
                     <h3>CDR Management</h3>
-                    <p>Project and optimize cohort default rates through data-driven intervention strategies.</p>
+                    <p>Project and optimize cohort default rates through targeted interventions.</p>
                 </div>
                 """, unsafe_allow_html=True)
     
@@ -440,7 +456,7 @@ def main():
             nslds_file = st.file_uploader(
                 "Upload NSLDS Delinquent Borrower Report",
                 type=['csv', 'xlsx'],
-                key="nslds"
+                key="nslds_upload"
             )
             
             if nslds_file:
@@ -448,7 +464,7 @@ def main():
                     with st.spinner("Processing NSLDS data..."):
                         df, error = process_nslds_file(nslds_file)
                         if error:
-                            st.error(f"Error: {error}")
+                            st.error(error)
                         else:
                             st.session_state.nslds_data = df
                             st.success(f"✅ Processed {len(df)} NSLDS records")
@@ -459,7 +475,7 @@ def main():
             sis_file = st.file_uploader(
                 "Upload Student Information System Data", 
                 type=['csv', 'xlsx'],
-                key="sis"
+                key="sis_upload"
             )
             
             if sis_file:
@@ -467,22 +483,22 @@ def main():
                     with st.spinner("Processing SIS data..."):
                         df, error = process_sis_file(sis_file)
                         if error:
-                            st.error(f"Error: {error}")
+                            st.error(error)
                         else:
                             st.session_state.sis_data = df
                             st.success(f"✅ Processed {len(df)} SIS records")
                             st.dataframe(df.head())
         
-        # Merge step
+        # Merge datasets
         if st.session_state.nslds_data is not None and st.session_state.sis_data is not None:
             st.markdown("---")
             st.subheader("Step 3: Merge Datasets")
             
             if st.button("🔗 Combine Data for Analysis", type="primary", use_container_width=True):
-                with st.spinner("Merging NSLDS and SIS data..."):
+                with st.spinner("Merging datasets..."):
                     merged, error = merge_data(st.session_state.nslds_data, st.session_state.sis_data)
                     if error:
-                        st.error(f"Merge failed: {error}")
+                        st.error(error)
                     else:
                         st.session_state.merged_data = merged
                         st.success(f"✅ Successfully merged {len(merged)} student records")
@@ -494,9 +510,9 @@ def main():
         if st.session_state.merged_data is not None:
             data = st.session_state.merged_data
             
+            # Risk score distribution
             st.subheader("Risk Score Distribution")
             
-            # Risk distribution histogram
             fig = px.histogram(
                 data, 
                 x='risk_score', 
@@ -504,11 +520,11 @@ def main():
                 title="Risk Score Distribution",
                 labels={'risk_score': 'Risk Score', 'count': 'Number of Students'}
             )
-            fig.add_vline(x=0.7, line_dash="dash", line_color="red", annotation_text="High Risk Threshold")
-            fig.add_vline(x=0.4, line_dash="dash", line_color="orange", annotation_text="Medium Risk Threshold")
+            fig.add_vline(x=0.7, line_dash="dash", line_color="red", annotation_text="High Risk")
+            fig.add_vline(x=0.4, line_dash="dash", line_color="orange", annotation_text="Medium Risk")
             st.plotly_chart(fig, use_container_width=True)
             
-            # Risk by delinquency analysis
+            # Risk vs delinquency scatter plot
             st.subheader("Risk vs Delinquency Analysis")
             
             fig2 = px.scatter(
@@ -517,14 +533,13 @@ def main():
                 y='risk_score',
                 color='risk_tier',
                 size='outstanding_balance',
-                hover_data=['first_name', 'last_name'] if 'first_name' in data.columns else None,
                 title="Risk Score vs Days Delinquent",
                 color_discrete_map={'HIGH': '#dc3545', 'MEDIUM': '#ffc107', 'LOW': '#28a745'}
             )
             st.plotly_chart(fig2, use_container_width=True)
             
             # Summary statistics
-            st.subheader("Risk Analytics Summary")
+            st.subheader("Summary Statistics")
             
             col1, col2, col3 = st.columns(3)
             
@@ -538,7 +553,7 @@ def main():
                 
             with col3:
                 avg_balance = data['outstanding_balance'].mean()
-                st.metric("Average Outstanding Balance", f"${avg_balance:,.0f}")
+                st.metric("Average Balance", f"${avg_balance:,.0f}")
         
         else:
             st.info("Please upload and merge data files to access risk analytics.")
@@ -568,12 +583,12 @@ def main():
                     avg_program_risk = major_analysis['avg_risk'].mean()
                     st.metric("Average Program Risk", f"{avg_program_risk:.2f}")
                 
-                # Program rankings table
+                # Program rankings
                 st.subheader("Program Risk Rankings")
-                display_analysis = major_analysis.copy()
-                display_analysis['avg_balance'] = display_analysis['avg_balance'].apply(lambda x: f"${x:,.0f}")
-                display_analysis['total_balance'] = display_analysis['total_balance'].apply(lambda x: f"${x:,.0f}")
-                st.dataframe(display_analysis, use_container_width=True)
+                display_data = major_analysis.copy()
+                display_data['avg_balance'] = display_data['avg_balance'].apply(lambda x: f"${x:,.0f}")
+                display_data['total_balance'] = display_data['total_balance'].apply(lambda x: f"${x:,.0f}")
+                st.dataframe(display_data, use_container_width=True)
                 
                 # Visualization
                 fig = px.scatter(
@@ -587,21 +602,6 @@ def main():
                     color_discrete_map={'HIGH': '#dc3545', 'MEDIUM': '#ffc107', 'LOW': '#28a745'}
                 )
                 st.plotly_chart(fig, use_container_width=True)
-                
-                # Program recommendations
-                st.subheader("Program Action Recommendations")
-                
-                high_risk_programs = major_analysis[major_analysis['risk_tier'] == 'HIGH']
-                if not high_risk_programs.empty:
-                    for _, program in high_risk_programs.iterrows():
-                        st.markdown(f"""
-                        <div class="intervention-card">
-                            <h4>{program['major']}</h4>
-                            <p><strong>Risk Level:</strong> {program['risk_tier']}</p>
-                            <p><strong>Students Affected:</strong> {program['student_count']}</p>
-                            <p><strong>Recommended Actions:</strong> Enhanced career services, financial counseling focus</p>
-                        </div>
-                        """, unsafe_allow_html=True)
             else:
                 st.warning("Cannot analyze by major - ensure your data includes academic program information")
         else:
@@ -616,22 +616,22 @@ def main():
             st.subheader("Priority Intervention Queue")
             
             # Get high-risk students
-            high_risk_students = data[data['risk_tier'] == 'HIGH'].copy()
-            medium_risk_students = data[data['risk_tier'] == 'MEDIUM'].copy()
+            high_risk_students = data[data['risk_tier'] == 'HIGH']
             
             if not high_risk_students.empty:
                 st.markdown("### Critical Priority Students")
                 
-                for _, student in high_risk_students.head(5).iterrows():
-                    # Safely get student information with fallbacks for merged data
-                    first_name = (student.get('first_name') or 
-                                  student.get('first_name_nslds') or 
-                                  student.get('first_name_sis') or 'Unknown')
-                    last_name = (student.get('last_name') or 
-                                 student.get('last_name_nslds') or 
-                                 student.get('last_name_sis') or 'Unknown')  
+                for idx, student in high_risk_students.head(5).iterrows():
+                    # Safely extract student information
+                    first_name = safe_get_value(student, ['first_name'], 'Unknown')
+                    last_name = safe_get_value(student, ['last_name'], 'Unknown')
+                    major = safe_get_value(student, ['major'], 'Unknown Major')
                     
-                    recommendations = generate_intervention_recommendations(risk_score, days_delinquent)
+                    risk_score = student.get('risk_score', 0)
+                    days_delinquent = student.get('days_delinquent', 0)
+                    balance = student.get('outstanding_balance', 0)
+                    
+                    recommendations = generate_intervention_recommendations(risk_score)
                     
                     with st.expander(f"{first_name} {last_name} - {major}"):
                         col1, col2 = st.columns([2, 1])
@@ -647,8 +647,8 @@ def main():
                                 st.write(f"• {rec['action']}")
                                 st.write(f"  Timeline: {rec['timeline']}")
                 
-                # Communication generation
-                st.subheader("Generate Targeted Communications")
+                # Communication templates
+                st.subheader("Generate Communications")
                 
                 template_choice = st.selectbox(
                     "Choose Communication Type",
@@ -660,34 +660,30 @@ def main():
                 )
                 
                 if st.button("Generate Communications", type="primary"):
-                    target_students = high_risk_students if template_choice == 'urgent_intervention' else medium_risk_students
-                    
-                    st.success(f"Generated {len(target_students)} personalized communications")
+                    st.success(f"Generated {len(high_risk_students)} personalized communications")
                     
                     # Show sample email
-                    if not target_students.empty:
-                        sample_student = target_students.iloc[0]
-                        template = EMAIL_TEMPLATES[template_choice]
+                    sample_student = high_risk_students.iloc[0]
+                    template = EMAIL_TEMPLATES[template_choice]
+                    
+                    try:
+                        sample_data = {
+                            'first_name': safe_get_value(sample_student, ['first_name'], 'Student'),
+                            'last_name': safe_get_value(sample_student, ['last_name'], 'Name'),
+                            'major': safe_get_value(sample_student, ['major'], 'Unknown Major'),
+                            'outstanding_balance': sample_student.get('outstanding_balance', 0),
+                            'days_delinquent': sample_student.get('days_delinquent', 0)
+                        }
                         
-                        try:
-                            # Create sample data for template
-                            sample_data = {
-                                'first_name': sample_student.get('first_name', 'Student'),
-                                'last_name': sample_student.get('last_name', 'Name'),
-                                'major': sample_student.get('major', 'Unknown Major'),
-                                'outstanding_balance': sample_student.get('outstanding_balance', 0),
-                                'days_delinquent': sample_student.get('days_delinquent', 0)
-                            }
-                            
-                            formatted_subject = template['subject'].format(**sample_data)
-                            formatted_body = template['body'].format(**sample_data)
-                            
-                            with st.expander("Preview Sample Email"):
-                                st.write("**Subject:**", formatted_subject)
-                                st.write("**Body:**")
-                                st.text_area("", formatted_body, height=300, disabled=True)
-                        except Exception as e:
-                            st.warning(f"Email template preview unavailable: {e}")
+                        formatted_subject = template['subject'].format(**sample_data)
+                        formatted_body = template['body'].format(**sample_data)
+                        
+                        with st.expander("Preview Sample Email"):
+                            st.write("**Subject:**", formatted_subject)
+                            st.write("**Body:**")
+                            st.text_area("", formatted_body, height=300, disabled=True)
+                    except Exception as e:
+                        st.warning("Email preview unavailable")
             
             else:
                 st.info("No high-risk students identified in current dataset.")
@@ -700,13 +696,12 @@ def main():
         
         st.markdown("""
         ### Test the Platform
-        
-        Download these sample files to explore the platform's capabilities without using your own institutional data.
+        Download these sample files to explore all platform capabilities.
         """)
         
-        sample_col1, sample_col2 = st.columns(2)
+        col1, col2 = st.columns(2)
         
-        with sample_col1:
+        with col1:
             st.markdown("#### Sample NSLDS Data")
             
             sample_nslds = """Borrower SSN,Borrower First Name,Borrower Last Name,E-mail,Days Delinquent,OPB,Loan Type
@@ -729,9 +724,15 @@ def main():
                 use_container_width=True
             )
         
-        with sample_col2:
+        with col2:
             st.markdown("#### Sample SIS Data")
             
+            sample_sis = """Student ID,SSN,First Name,Last Name,Email,Major,Program,Academic Standing,GPA,Credit Hours,Enrollment Status
+STU100000,102341234,James,Smith,james.smith@email.com,Business Administration,Bachelor of Business Administration,Good Standing,3.25,60,Full-time
+STU100001,987652345,Mary,Johnson,mary.johnson@email.com,Computer Science,Bachelor of Science in Computer Science,Academic Warning,2.45,45,Full-time
+STU100002,456783456,John,Williams,john.williams@email.com,Nursing,Bachelor of Science in Nursing,Good Standing,3.67,75,Full-time
+STU100003,789124567,Patricia,Brown,patricia.brown@email.com,Engineering,Bachelor of Engineering,Good Standing,3.12,90,Full-time
+STU100004,321655678,Robert,Jones,robert.jones@email.com,Psychology,Bachelor of Arts in Psychology,Dean's List,3.85,120,Full-time
             sample_sis = """Student ID,SSN,First Name,Last Name,Email,Major,Program,Academic Standing,GPA,Credit Hours,Enrollment Status
 STU100000,102341234,James,Smith,james.smith@email.com,Business Administration,Bachelor of Business Administration,Good Standing,3.25,60,Full-time
 STU100001,987652345,Mary,Johnson,mary.johnson@email.com,Computer Science,Bachelor of Science in Computer Science,Academic Warning,2.45,45,Full-time
