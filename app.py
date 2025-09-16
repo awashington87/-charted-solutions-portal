@@ -623,13 +623,13 @@ def main():
                 st.markdown("### Critical Priority Students")
                 
                 for _, student in high_risk_students.head(5).iterrows():
-                    # Safely get student information
-                    first_name = student.get('first_name', 'Unknown')
-                    last_name = student.get('last_name', 'Unknown')
-                    major = student.get('major', 'Unknown Major')
-                    risk_score = student.get('risk_score', 0)
-                    days_delinquent = student.get('days_delinquent', 0)
-                    balance = student.get('outstanding_balance', 0)
+                    # Safely get student information with fallbacks for merged data
+                    first_name = (student.get('first_name') or 
+                                  student.get('first_name_nslds') or 
+                                  student.get('first_name_sis') or 'Unknown')
+                    last_name = (student.get('last_name') or 
+                                 student.get('last_name_nslds') or 
+                                 student.get('last_name_sis') or 'Unknown')  
                     
                     recommendations = generate_intervention_recommendations(risk_score, days_delinquent)
                     
