@@ -763,7 +763,7 @@ def main():
         else:
             st.info("Please upload and merge data files to access ROI analysis.")
     
-with tab5:
+    with tab5:
     st.header("⚡ Automated Intervention Engine")
 
     if st.session_state.merged_data is not None:
