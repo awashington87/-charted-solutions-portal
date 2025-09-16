@@ -782,9 +782,6 @@ def main():
                 
                 for _, student in high_risk_students.head(5).iterrows():
                     recommendations = generate_intervention_recommendations(student.to_dict())
-                    
-                for _, student in high_risk_students.head(5).iterrows():
-    recommendations = generate_intervention_recommendations(student.to_dict())
     
     # Safely get student info with fallbacks
     first_name = student.get('first_name') or student.get('first_name_nslds') or 'Unknown'
